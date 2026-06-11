@@ -588,6 +588,47 @@ label {
   padding: 6px 12px;
 }
 
+/* ---------- Audit de conformité ciblé ---------- */
+
+.audit-pending {
+  background: var(--info-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--info-700);
+  margin-bottom: 12px;
+}
+
+.audit-findings {
+  background: #fff;
+  border: 1px solid var(--error-200);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  box-shadow: var(--shadow-xs);
+}
+
+.audit-findings ul {
+  margin: 8px 0;
+  padding-left: 18px;
+}
+
+.audit-findings li {
+  margin-bottom: 8px;
+}
+
+.finding-clause {
+  color: var(--gray-500);
+  font-weight: 400;
+}
+
+.finding-extra {
+  color: var(--gray-600);
+  margin: 6px 0;
+}
+
 /* ---------- Documents non rattachés ---------- */
 
 .unattached-row {

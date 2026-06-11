@@ -21,6 +21,13 @@ interface GenerateResult {
   content: string;
 }
 
+interface AuditFindings {
+  conforme: boolean;
+  ecarts: { titre: string; description: string; clause: string | null }[];
+  suggestions: string[];
+  questions: string[];
+}
+
 export default function AssistantPage() {
   const { projectId, requirementId } = useParams<{ projectId: string; requirementId: string }>();
   const navigate = useNavigate();
@@ -29,6 +36,8 @@ export default function AssistantPage() {
   const [sending, setSending] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState<GenerateResult | null>(null);
+  const [auditing, setAuditing] = useState(false);
+  const [auditResult, setAuditResult] = useState<AuditFindings | null>(null);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -77,9 +86,23 @@ export default function AssistantPage() {
         sessionId: state.sessionId,
       });
       setGenerated(result);
+      setGenerating(false);
+      // Second audit systématique : le document généré est immédiatement contrôlé
+      setAuditing(true);
+      try {
+        const audit = await apiPost<{ conforme: boolean; findings: AuditFindings }>(
+          "/api/audits/document",
+          { requirementId }
+        );
+        setAuditResult(audit.findings);
+      } catch {
+        setAuditResult(null);
+        setError("L'audit de conformité n'a pas pu être réalisé — relancez-le depuis la page du projet.");
+      } finally {
+        setAuditing(false);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "La génération a échoué");
-    } finally {
       setGenerating(false);
     }
   }
@@ -123,8 +146,49 @@ export default function AssistantPage() {
           <div className="generated-doc">
             <h2>Projet de document généré</h2>
             <pre>{generated.content}</pre>
+
+            {auditing && (
+              <div className="audit-pending">
+                Audit de conformité en cours… Le document est contrôlé au regard des clauses qu'il
+                couvre avant d'être validé.
+              </div>
+            )}
+
+            {auditResult?.conforme && (
+              <p className="notice">
+                Audit de conformité réussi : le document est <strong>validé</strong> et compte dans
+                la complétion de votre dossier.
+              </p>
+            )}
+
+            {auditResult && !auditResult.conforme && (
+              <div className="audit-findings">
+                <strong>
+                  Audit de conformité : {auditResult.ecarts.length} écart(s) à corriger
+                </strong>
+                <ul>
+                  {auditResult.ecarts.map((e, i) => (
+                    <li key={i}>
+                      <strong>{e.titre}</strong>
+                      {e.clause && <span className="finding-clause"> — clause {e.clause}</span>}
+                      <br />
+                      {e.description}
+                    </li>
+                  ))}
+                </ul>
+                {auditResult.questions.length > 0 && (
+                  <p className="finding-extra">
+                    <strong>Questions de l'auditeur :</strong> {auditResult.questions.join(" · ")}
+                  </p>
+                )}
+                <p className="finding-extra">
+                  Retrouvez ces constats sur la page du projet pour corriger le document.
+                </p>
+              </div>
+            )}
+
             <div className="encart-actions">
-              <button onClick={() => navigate(`/projets/${projectId}`)}>
+              <button onClick={() => navigate(`/projets/${projectId}`)} disabled={auditing}>
                 Retourner au projet
               </button>
             </div>

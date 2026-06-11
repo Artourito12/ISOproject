@@ -26,6 +26,20 @@ interface ProjectDocument {
   title: string;
 }
 
+interface AuditFindings {
+  conforme: boolean;
+  ecarts: { titre: string; description: string; clause: string | null }[];
+  suggestions: string[];
+  questions: string[];
+}
+
+interface DocumentAudit {
+  document_id: string;
+  status: "en_cours" | "conforme" | "non_conforme";
+  findings: AuditFindings | null;
+  created_at: string;
+}
+
 interface ClassifyResult {
   matched: boolean;
   requirementId?: string;
@@ -57,6 +71,8 @@ export default function ProjectPage() {
   const [projectName, setProjectName] = useState("");
   const [encarts, setEncarts] = useState<Encart[]>([]);
   const [unattachedDocs, setUnattachedDocs] = useState<ProjectDocument[]>([]);
+  const [audits, setAudits] = useState<Record<string, DocumentAudit>>({});
+  const [auditingId, setAuditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [encartBusy, setEncartBusy] = useState<string | null>(null);
@@ -83,6 +99,23 @@ export default function ProjectPage() {
 
     const attachedIds = new Set(loadedEncarts.map((e) => e.document_id).filter(Boolean));
     setUnattachedDocs((docs ?? []).filter((d) => !attachedIds.has(d.id)));
+
+    // Dernier audit ciblé par document (le plus récent gagne)
+    const docIds = (docs ?? []).map((d) => d.id);
+    if (docIds.length > 0) {
+      const { data: auditRows } = await supabase
+        .from("document_audits")
+        .select("document_id, status, findings, created_at")
+        .in("document_id", docIds)
+        .order("created_at", { ascending: false });
+      const latest: Record<string, DocumentAudit> = {};
+      for (const a of (auditRows as DocumentAudit[]) ?? []) {
+        if (!latest[a.document_id]) latest[a.document_id] = a;
+      }
+      setAudits(latest);
+    } else {
+      setAudits({});
+    }
     setLoading(false);
   }, [projectId]);
 
@@ -92,6 +125,26 @@ export default function ProjectPage() {
 
   function pushMessage(text: string) {
     setMessages((prev) => [...prev, text]);
+  }
+
+  // Second audit systématique : déclenché après chaque passage à « Fourni ».
+  async function runAudit(requirementId: string): Promise<AuditFindings | null> {
+    setAuditingId(requirementId);
+    try {
+      const result = await apiPost<{ conforme: boolean; findings: AuditFindings }>(
+        "/api/audits/document",
+        { requirementId }
+      );
+      return result.findings;
+    } catch (err) {
+      pushMessage(
+        `L'audit de conformité n'a pas pu être réalisé : ${err instanceof Error ? err.message : "erreur"}. Vous pouvez le relancer depuis l'encart.`
+      );
+      return null;
+    } finally {
+      setAuditingId(null);
+      await loadData();
+    }
   }
 
   // --- Dépôt global : l'IA reconnaît et classe chaque fichier ---
@@ -111,8 +164,16 @@ export default function ProjectPage() {
           userId: session.user.id,
         });
         const result = await apiPost<ClassifyResult>("/api/documents/classify", { documentId });
-        if (result.matched && result.autoConfirmed) {
-          pushMessage(`« ${file.name} » a été reconnu et rattaché (${result.matchedKey}).`);
+        if (result.matched && result.autoConfirmed && result.requirementId) {
+          pushMessage(`« ${file.name} » a été reconnu et rattaché (${result.matchedKey}). Audit de conformité en cours…`);
+          const findings = await runAudit(result.requirementId);
+          if (findings) {
+            pushMessage(
+              findings.conforme
+                ? `« ${file.name} » : conforme — document validé.`
+                : `« ${file.name} » : ${findings.ecarts.length} écart(s) constaté(s) — consultez l'encart concerné.`
+            );
+          }
         } else if (result.matched && result.needsHumanConfirmation) {
           pushMessage(
             `« ${file.name} » semble correspondre à « ${result.matchedKey} » — confirmez le rattachement dans l'encart concerné.`
@@ -162,6 +223,9 @@ export default function ProjectPage() {
         })
         .eq("id", encart.id);
       await loadData();
+      setEncartBusy(null);
+      await runAudit(encart.id);
+      return;
     } catch (err) {
       pushMessage(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
@@ -183,6 +247,7 @@ export default function ProjectPage() {
       .eq("id", encart.id);
     await loadData();
     setEncartBusy(null);
+    await runAudit(encart.id);
   }
 
   async function rejectClassification(encart: Encart) {
@@ -213,6 +278,7 @@ export default function ProjectPage() {
       })
       .eq("id", encartId);
     await loadData();
+    await runAudit(encartId);
   }
 
   const total = encarts.length;
@@ -301,6 +367,10 @@ export default function ProjectPage() {
           const doc = encart.required_documents;
           const busy = encartBusy === encart.id;
           const awaitingConfirmation = encart.status === "en_cours" && encart.document_id;
+          const audit = encart.document_id ? audits[encart.document_id] : undefined;
+          const auditing = auditingId === encart.id;
+          const showFindings =
+            encart.status === "fourni" && audit?.status === "non_conforme" && audit.findings;
           return (
             <div key={encart.id} className={`card encart encart-${encart.status}`}>
               <div className="encart-header">
@@ -313,6 +383,61 @@ export default function ProjectPage() {
 
               {encart.documents && !awaitingConfirmation && (
                 <p className="attached-doc">Document fourni : {encart.documents.title}</p>
+              )}
+
+              {auditing && (
+                <div className="audit-pending">
+                  Audit de conformité en cours… (environ une minute)
+                </div>
+              )}
+
+              {showFindings && !auditing && audit?.findings && (
+                <div className="audit-findings">
+                  <strong>
+                    Audit de conformité : {audit.findings.ecarts.length} écart(s) à corriger
+                  </strong>
+                  <ul>
+                    {audit.findings.ecarts.map((e, i) => (
+                      <li key={i}>
+                        <strong>{e.titre}</strong>
+                        {e.clause && <span className="finding-clause"> — clause {e.clause}</span>}
+                        <br />
+                        {e.description}
+                      </li>
+                    ))}
+                  </ul>
+                  {audit.findings.suggestions.length > 0 && (
+                    <p className="finding-extra">
+                      <strong>Suggestions :</strong> {audit.findings.suggestions.join(" · ")}
+                    </p>
+                  )}
+                  {audit.findings.questions.length > 0 && (
+                    <p className="finding-extra">
+                      <strong>Questions de l'auditeur :</strong>{" "}
+                      {audit.findings.questions.join(" · ")}
+                    </p>
+                  )}
+                  <div className="encart-actions">
+                    <button onClick={() => openEncartUpload(encart)} disabled={busy || uploading}>
+                      Déposer une version corrigée
+                    </button>
+                    <button
+                      className="secondary"
+                      onClick={() => runAudit(encart.id)}
+                      disabled={busy || uploading}
+                    >
+                      Relancer l'audit
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {encart.status === "fourni" && !audit && !auditing && !awaitingConfirmation && (
+                <div className="encart-actions" style={{ marginBottom: "0.75rem" }}>
+                  <button onClick={() => runAudit(encart.id)} disabled={busy || uploading}>
+                    Lancer l'audit de conformité
+                  </button>
+                </div>
               )}
 
               {awaitingConfirmation && (
