@@ -262,3 +262,59 @@ label {
   display: grid;
   gap: 0.5rem;
 }
+
+/* Zone de dépôt globale */
+.dropzone {
+  border: 2px dashed var(--border);
+}
+
+.upload-messages {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.upload-messages li {
+  margin-bottom: 0.25rem;
+}
+
+/* Confirmation humaine d'un classement incertain */
+.confirmation-box {
+  background: var(--card-bg);
+  border: 1px solid var(--warning-text);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.92rem;
+}
+
+button.secondary {
+  background: var(--neutral-bg);
+  color: var(--text);
+}
+
+button.secondary:hover:not(:disabled) {
+  background: var(--border);
+}
+
+.attached-doc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Documents non rattachés */
+.unattached-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.unattached-row select {
+  width: auto;
+  margin-top: 0;
+}

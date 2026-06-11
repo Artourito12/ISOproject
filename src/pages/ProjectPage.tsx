@@ -1,11 +1,16 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef, ChangeEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { apiPost } from "../lib/api";
+import { uploadProjectFile } from "../lib/uploads";
+import { useAuth } from "../contexts/AuthContext";
 
 interface Encart {
   id: string;
   status: string;
   classification_confidence: number | null;
+  document_id: string | null;
+  documents: { title: string } | null;
   required_documents: {
     key: string;
     title: string;
@@ -14,6 +19,22 @@ interface Encart {
     generation_case: number;
     evidence_type: string;
   };
+}
+
+interface ProjectDocument {
+  id: string;
+  title: string;
+}
+
+interface ClassifyResult {
+  matched: boolean;
+  requirementId?: string;
+  matchedKey?: string;
+  confidence?: number;
+  autoConfirmed?: boolean;
+  needsHumanConfirmation?: boolean;
+  reasoning?: string;
+  reason?: string;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -31,23 +52,36 @@ const CASE_LABELS: Record<number, string> = {
 
 export default function ProjectPage() {
   const { projectId } = useParams<{ projectId: string }>();
+  const { session, profile } = useAuth();
   const [projectName, setProjectName] = useState("");
   const [encarts, setEncarts] = useState<Encart[]>([]);
+  const [unattachedDocs, setUnattachedDocs] = useState<ProjectDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [encartBusy, setEncartBusy] = useState<string | null>(null);
+  const [messages, setMessages] = useState<string[]>([]);
+  const globalInputRef = useRef<HTMLInputElement>(null);
+  const encartInputRef = useRef<HTMLInputElement>(null);
+  const encartTargetRef = useRef<Encart | null>(null);
 
   const loadData = useCallback(async () => {
     if (!projectId) return;
-    const [{ data: project }, { data: requirements }] = await Promise.all([
+    const [{ data: project }, { data: requirements }, { data: docs }] = await Promise.all([
       supabase.from("projects").select("name").eq("id", projectId).single(),
       supabase
         .from("document_requirements")
         .select(
-          "id, status, classification_confidence, required_documents(key, title, description, is_mandatory, generation_case, evidence_type)"
+          "id, status, classification_confidence, document_id, documents(title), required_documents(key, title, description, is_mandatory, generation_case, evidence_type)"
         )
         .eq("project_id", projectId),
+      supabase.from("documents").select("id, title").eq("project_id", projectId),
     ]);
+    const loadedEncarts = (requirements as unknown as Encart[]) ?? [];
     setProjectName(project?.name ?? "");
-    setEncarts((requirements as unknown as Encart[]) ?? []);
+    setEncarts(loadedEncarts);
+
+    const attachedIds = new Set(loadedEncarts.map((e) => e.document_id).filter(Boolean));
+    setUnattachedDocs((docs ?? []).filter((d) => !attachedIds.has(d.id)));
     setLoading(false);
   }, [projectId]);
 
@@ -55,8 +89,134 @@ export default function ProjectPage() {
     void loadData();
   }, [loadData]);
 
+  function pushMessage(text: string) {
+    setMessages((prev) => [...prev, text]);
+  }
+
+  // --- Dépôt global : l'IA reconnaît et classe chaque fichier ---
+  async function handleGlobalUpload(e: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (!files.length || !projectId || !profile?.organization_id || !session) return;
+
+    setUploading(true);
+    setMessages([]);
+    for (const file of files) {
+      try {
+        const documentId = await uploadProjectFile({
+          organizationId: profile.organization_id,
+          projectId,
+          file,
+          userId: session.user.id,
+        });
+        const result = await apiPost<ClassifyResult>("/api/documents/classify", { documentId });
+        if (result.matched && result.autoConfirmed) {
+          pushMessage(`« ${file.name} » a été reconnu et rattaché (${result.matchedKey}).`);
+        } else if (result.matched && result.needsHumanConfirmation) {
+          pushMessage(
+            `« ${file.name} » semble correspondre à « ${result.matchedKey} » — confirmez le rattachement dans l'encart concerné.`
+          );
+        } else {
+          pushMessage(
+            `« ${file.name} » n'a pas été reconnu. Vous pouvez le rattacher manuellement ci-dessous.`
+          );
+        }
+      } catch (err) {
+        pushMessage(
+          `« ${file.name} » : ${err instanceof Error ? err.message : "une erreur est survenue"}.`
+        );
+      }
+    }
+    await loadData();
+    setUploading(false);
+  }
+
+  // --- Dépôt direct dans un encart précis (pas de classification nécessaire) ---
+  function openEncartUpload(encart: Encart) {
+    encartTargetRef.current = encart;
+    encartInputRef.current?.click();
+  }
+
+  async function handleEncartUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    const encart = encartTargetRef.current;
+    if (!file || !encart || !projectId || !profile?.organization_id || !session) return;
+
+    setEncartBusy(encart.id);
+    try {
+      const documentId = await uploadProjectFile({
+        organizationId: profile.organization_id,
+        projectId,
+        file,
+        userId: session.user.id,
+      });
+      await supabase
+        .from("document_requirements")
+        .update({
+          document_id: documentId,
+          status: "fourni",
+          classification_confirmed_by: session.user.id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", encart.id);
+      await loadData();
+    } catch (err) {
+      pushMessage(err instanceof Error ? err.message : "Une erreur est survenue");
+    } finally {
+      setEncartBusy(null);
+    }
+  }
+
+  // --- Confirmation humaine d'un classement incertain ---
+  async function confirmClassification(encart: Encart) {
+    if (!session) return;
+    setEncartBusy(encart.id);
+    await supabase
+      .from("document_requirements")
+      .update({
+        status: "fourni",
+        classification_confirmed_by: session.user.id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", encart.id);
+    await loadData();
+    setEncartBusy(null);
+  }
+
+  async function rejectClassification(encart: Encart) {
+    setEncartBusy(encart.id);
+    await supabase
+      .from("document_requirements")
+      .update({
+        document_id: null,
+        status: "a_fournir",
+        classification_confidence: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", encart.id);
+    await loadData();
+    setEncartBusy(null);
+  }
+
+  // --- Rattachement manuel d'un document non reconnu ---
+  async function attachManually(documentId: string, encartId: string) {
+    if (!session || !encartId) return;
+    await supabase
+      .from("document_requirements")
+      .update({
+        document_id: documentId,
+        status: "fourni",
+        classification_confirmed_by: session.user.id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", encartId);
+    await loadData();
+  }
+
   const total = encarts.length;
   const done = encarts.filter((e) => e.status === "valide").length;
+  const openEncarts = encarts.filter((e) => !e.document_id);
 
   if (loading) return <div className="page">Chargement…</div>;
 
@@ -77,9 +237,69 @@ export default function ProjectPage() {
         </div>
       </header>
 
+      <div className="card dropzone">
+        <h2>Déposez vos documents existants</h2>
+        <p className="encart-description">
+          Déposez les documents que vous possédez déjà : ils seront reconnus et rattachés
+          automatiquement aux exigences correspondantes. Format recommandé : PDF.
+        </p>
+        <input
+          ref={globalInputRef}
+          type="file"
+          accept=".pdf,.txt,.md"
+          multiple
+          hidden
+          onChange={handleGlobalUpload}
+        />
+        <button onClick={() => globalInputRef.current?.click()} disabled={uploading}>
+          {uploading ? "Analyse en cours…" : "Choisir des fichiers"}
+        </button>
+        {messages.length > 0 && (
+          <ul className="upload-messages">
+            {messages.map((m, i) => (
+              <li key={i}>{m}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {unattachedDocs.length > 0 && (
+        <div className="card unattached">
+          <h2>Documents non rattachés</h2>
+          <p className="encart-description">
+            Ces documents n'ont pas pu être reconnus automatiquement. Indiquez à quelle exigence
+            chacun correspond.
+          </p>
+          {unattachedDocs.map((doc) => (
+            <div key={doc.id} className="unattached-row">
+              <span>{doc.title}</span>
+              <select
+                defaultValue=""
+                onChange={(e) => {
+                  if (e.target.value) void attachManually(doc.id, e.target.value);
+                }}
+              >
+                <option value="" disabled>
+                  Rattacher à…
+                </option>
+                {openEncarts.map((enc) => (
+                  <option key={enc.id} value={enc.id}>
+                    {enc.required_documents.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <input ref={encartInputRef} type="file" accept=".pdf,.txt,.md" hidden onChange={handleEncartUpload} />
+
       <div className="encart-list">
         {encarts.map((encart) => {
           const doc = encart.required_documents;
+          const busy = encartBusy === encart.id;
+          const awaitingConfirmation = encart.status === "en_cours" && encart.document_id;
           return (
             <div key={encart.id} className={`card encart encart-${encart.status}`}>
               <div className="encart-header">
@@ -89,14 +309,45 @@ export default function ProjectPage() {
                 </span>
               </div>
               <p className="encart-description">{doc.description}</p>
+
+              {encart.documents && !awaitingConfirmation && (
+                <p className="attached-doc">Document fourni : {encart.documents.title}</p>
+              )}
+
+              {awaitingConfirmation && (
+                <div className="confirmation-box">
+                  <p>
+                    Ce document (« {encart.documents?.title} ») semble être votre{" "}
+                    <strong>{doc.title.toLowerCase()}</strong>
+                    {encart.classification_confidence !== null &&
+                      ` (confiance : ${Math.round(encart.classification_confidence * 100)} %)`}
+                    . Confirmez-vous ?
+                  </p>
+                  <div className="encart-actions">
+                    <button onClick={() => confirmClassification(encart)} disabled={busy}>
+                      Oui, c'est bien ce document
+                    </button>
+                    <button
+                      className="secondary"
+                      onClick={() => rejectClassification(encart)}
+                      disabled={busy}
+                    >
+                      Non, détacher
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="encart-footer">
                 <span className="encart-case">{CASE_LABELS[doc.generation_case]}</span>
                 {!doc.is_mandatory && <span className="badge badge-optionnel">Recommandé</span>}
                 <div className="encart-actions">
-                  <button disabled title="Bientôt disponible">
-                    Déposer un document
-                  </button>
-                  {doc.generation_case !== 3 && (
+                  {!encart.document_id && (
+                    <button onClick={() => openEncartUpload(encart)} disabled={busy || uploading}>
+                      {busy ? "Téléversement…" : "Déposer un document"}
+                    </button>
+                  )}
+                  {doc.generation_case !== 3 && !encart.document_id && (
                     <button disabled title="Bientôt disponible">
                       Créer avec l'assistant
                     </button>

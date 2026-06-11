@@ -118,16 +118,15 @@ export default async function handler(req, res) {
 
   const autoConfirmed = result.confidence >= CONFIDENCE_THRESHOLD;
 
-  // Rattachement : automatique au-dessus du seuil, sinon en attente de confirmation.
-  // Le statut ne passe à 'fourni' qu'après confirmation (humaine ou automatique) ;
-  // le passage à 'valide' relève du second audit (api/audits/document.js, à venir).
+  // Rattachement : automatique au-dessus du seuil, sinon en attente de confirmation
+  // humaine (classification_confirmed_by reste null tant que personne n'a confirmé).
+  // Le passage à 'valide' relève du second audit (api/audits/document.js, à venir).
   const { error: updateError } = await supabaseAdmin
     .from("document_requirements")
     .update({
       document_id: doc.id,
       status: autoConfirmed ? "fourni" : "en_cours",
       classification_confidence: result.confidence,
-      classification_confirmed_by: autoConfirmed ? null : undefined,
       updated_at: new Date().toISOString(),
     })
     .eq("id", requirement.id);
