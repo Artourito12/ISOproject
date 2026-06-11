@@ -10,7 +10,8 @@ export const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }
 export const MODEL = "claude-opus-4-8";
 
 // Appel avec sortie structurée. `schema` est un JSON Schema (objet racine,
-// additionalProperties: false sur chaque objet).
+// additionalProperties: false sur chaque objet). Toujours en streaming pour
+// éviter les timeouts HTTP sur les longues générations.
 export async function callStructured({ system, messages, schema, thinking = false, maxTokens = 16000 }) {
   const params = {
     model: MODEL,
@@ -21,10 +22,13 @@ export async function callStructured({ system, messages, schema, thinking = fals
   };
   if (thinking) params.thinking = { type: "adaptive" };
 
-  const response = await anthropic.messages.create(params);
+  const response = await anthropic.messages.stream(params).finalMessage();
 
   if (response.stop_reason === "refusal") {
     throw new Error("Requête refusée par le modèle");
+  }
+  if (response.stop_reason === "max_tokens") {
+    throw new Error("Réponse tronquée (max_tokens atteint)");
   }
   const text = response.content.find((b) => b.type === "text")?.text;
   if (!text) throw new Error("Réponse sans contenu texte");

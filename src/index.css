@@ -526,6 +526,68 @@ label {
   overflow-y: auto;
 }
 
+/* ---------- Recherche de norme (génération IA) ---------- */
+
+.norm-search {
+  border-top: 1px solid var(--gray-200);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.norm-search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.norm-search-row input {
+  flex: 1;
+  margin-top: 0;
+}
+
+.notice {
+  background: var(--success-50);
+  border: 1px solid var(--success-200);
+  color: var(--success-700);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---------- Tableau admin ---------- */
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.admin-table th {
+  text-align: left;
+  color: var(--gray-500);
+  font-weight: 600;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.admin-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+}
+
+.admin-table .row-muted {
+  color: var(--gray-400);
+}
+
+.admin-table button {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
 /* ---------- Documents non rattachés ---------- */
 
 .unattached-row {

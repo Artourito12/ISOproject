@@ -12,6 +12,7 @@ interface Profile {
 interface AuthContextValue {
   session: Session | null;
   profile: Profile | null;
+  isPlatformAdmin: boolean;
   loading: boolean;
   refreshProfile: () => Promise<void>;
 }
@@ -19,6 +20,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue>({
   session: null,
   profile: null,
+  isPlatformAdmin: false,
   loading: true,
   refreshProfile: async () => {},
 });
@@ -26,15 +28,20 @@ const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   async function loadProfile(userId: string) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("id, organization_id, role, full_name")
-      .eq("id", userId)
-      .maybeSingle();
+    const [{ data }, { data: adminRow }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, organization_id, role, full_name")
+        .eq("id", userId)
+        .maybeSingle(),
+      supabase.from("platform_admins").select("user_id").eq("user_id", userId).maybeSingle(),
+    ]);
     setProfile(data);
+    setIsPlatformAdmin(Boolean(adminRow));
   }
 
   useEffect(() => {
@@ -57,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session,
         profile,
+        isPlatformAdmin,
         loading,
         refreshProfile: async () => {
           if (session) await loadProfile(session.user.id);

@@ -22,3 +22,13 @@ export async function getUserFromRequest(req) {
 
   return { user: data.user, profile };
 }
+
+// Vérifie que l'utilisateur est super admin plateforme.
+export async function isPlatformAdmin(userId) {
+  const { data } = await supabaseAdmin
+    .from("platform_admins")
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return Boolean(data);
+}
