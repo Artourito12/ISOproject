@@ -1,7 +1,6 @@
 {
   "functions": {
-    "api/**/*.js": { "maxDuration": 300 },
-    "api/standards/generate.js": { "maxDuration": 800 }
+    "api/**/*.js": { "maxDuration": 800 }
   },
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
