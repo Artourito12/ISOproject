@@ -1,0 +1,237 @@
+[
+  {
+    "key": "domaine_application_smsi",
+    "title": "Domaine d'application du SMSI",
+    "description": "Document définissant les limites et l'applicabilité de votre système de management de la sécurité de l'information : périmètre organisationnel, sites, systèmes d'information couverts, interfaces et dépendances avec des tiers.",
+    "clauses": ["4.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "raison_sociale": { "type": "string", "label": "Raison sociale de l'organisation", "required": true },
+      "perimetre_organisationnel": { "type": "text", "label": "Entités, services et sites couverts par le SMSI", "required": true },
+      "perimetre_si": { "type": "text", "label": "Systèmes d'information, applications et infrastructures couverts", "required": true },
+      "interfaces_tiers": { "type": "text", "label": "Interfaces et dépendances avec des organisations externes (hébergeurs, infogérants, SaaS critiques…)", "required": true },
+      "exclusions": { "type": "array", "label": "Éléments exclus du périmètre, avec justification", "required": false }
+    },
+    "generation_template": "Document court : présentation de l'organisation, périmètre organisationnel et technique du SMSI, interfaces avec les tiers, exclusions justifiées.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true }
+  },
+  {
+    "key": "politique_securite_information",
+    "title": "Politique de sécurité de l'information",
+    "description": "Déclaration de la direction définissant les orientations de sécurité de l'information : engagements, cadre des objectifs, communication.",
+    "clauses": ["5.1", "5.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "raison_sociale": { "type": "string", "label": "Raison sociale", "required": true },
+      "activites": { "type": "text", "label": "Activités et contexte de l'organisation", "required": true },
+      "enjeux_securite": { "type": "text", "label": "Principaux enjeux de sécurité (données clients, propriété intellectuelle, continuité, conformité réglementaire…)", "required": true },
+      "engagements_direction": { "type": "text", "label": "Engagements de la direction (protection CID, conformité, amélioration continue, ressources)", "required": true },
+      "axes_securite": { "type": "array", "label": "Axes de sécurité prioritaires (3 à 5)", "required": true, "minItems": 3 },
+      "signataire": { "type": "string", "label": "Nom et fonction du signataire (dirigeant)", "required": true }
+    },
+    "generation_template": "Document d'une page signé par la direction : enjeux, engagements (confidentialité, intégrité, disponibilité), axes prioritaires servant de cadre aux objectifs de sécurité, modalités de communication et de revue.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "methodologie_risques",
+    "title": "Méthodologie d'appréciation des risques",
+    "description": "Définition du processus d'appréciation et de traitement des risques de sécurité : critères d'acceptation, échelles de cotation, méthode d'identification, propriétaires de risques.",
+    "clauses": ["6.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "echelle_impact": { "type": "text", "label": "Échelle d'impact retenue (niveaux et description)", "required": true },
+      "echelle_vraisemblance": { "type": "text", "label": "Échelle de vraisemblance retenue", "required": true },
+      "criteres_acceptation": { "type": "text", "label": "Critères d'acceptation des risques (seuils)", "required": true },
+      "proprietaires_risques": { "type": "text", "label": "Qui sont les propriétaires de risques dans votre organisation", "required": true },
+      "frequence_revision": { "type": "string", "label": "Fréquence de révision des appréciations", "required": true }
+    },
+    "generation_template": "Procédure : critères de risque, échelles impact × vraisemblance, matrice de cotation, processus d'identification/analyse/évaluation, options de traitement, validation par les propriétaires de risques.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true }
+  },
+  {
+    "key": "appreciation_risques",
+    "title": "Appréciation des risques de sécurité de l'information",
+    "description": "Résultats de l'appréciation des risques : actifs ou processus concernés, menaces et vulnérabilités, cotation, propriétaires, décisions de traitement.",
+    "clauses": ["6.1", "8.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "actifs_principaux": { "type": "array", "label": "Actifs ou processus principaux à protéger (applications, données, infrastructures, personnes clés)", "required": true, "minItems": 3 },
+      "risques": { "type": "array", "label": "Pour chaque risque : description (menace + vulnérabilité), actif concerné, impact, vraisemblance, mesures existantes", "required": true, "minItems": 5 },
+      "decisions_traitement": { "type": "array", "label": "Décision de traitement par risque (réduire, accepter, transférer, éviter) et propriétaire", "required": true, "minItems": 5 }
+    },
+    "generation_template": "Tableau d'appréciation : actif, menace, vulnérabilité, impact, vraisemblance, niveau de risque, mesures existantes, décision de traitement, propriétaire. Synthèse des risques majeurs.",
+    "validation_rules": { "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "declaration_applicabilite",
+    "title": "Déclaration d'applicabilité (SoA)",
+    "description": "Document central du SMSI : pour chacune des mesures de sécurité de l'annexe A, indication de son applicabilité, justification de l'inclusion ou de l'exclusion, et état de mise en œuvre.",
+    "clauses": ["6.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["appréciation des risques", "plan de traitement des risques", "politiques et procédures de sécurité existantes", "liste des mesures techniques en place"],
+    "generation_template": "Tableau des 93 mesures de l'annexe A (ISO/IEC 27001:2022, sections 5 à 8) : applicable oui/non, justification (lien avec les risques ou exigences), état de mise en œuvre, référence aux documents associés. Chaque exclusion doit être explicitement justifiée.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "plan_traitement_risques",
+    "title": "Plan de traitement des risques",
+    "description": "Plan d'actions issu de l'appréciation des risques : mesures à mettre en œuvre, responsables, échéances, ressources, approbation des propriétaires de risques.",
+    "clauses": ["6.1", "8.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["appréciation des risques", "déclaration d'applicabilité", "plans d'actions existants"],
+    "generation_template": "Plan d'actions : risque traité, mesure retenue (référence annexe A le cas échéant), responsable, échéance, ressources, risque résiduel attendu, approbation du propriétaire de risque.",
+    "validation_rules": { "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "objectifs_securite",
+    "title": "Objectifs de sécurité de l'information",
+    "description": "Objectifs de sécurité mesurables aux fonctions et niveaux pertinents, avec actions, responsables, échéances et méthode d'évaluation.",
+    "clauses": ["6.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "objectifs": { "type": "array", "label": "Objectifs de sécurité : intitulé mesurable, indicateur, cible, responsable, échéance", "required": true, "minItems": 2 },
+      "coherence_politique": { "type": "text", "label": "Lien de chaque objectif avec les axes de la politique de sécurité", "required": true },
+      "modalites_suivi": { "type": "text", "label": "Modalités et fréquence de suivi", "required": true }
+    },
+    "generation_template": "Tableau des objectifs : objectif mesurable, indicateur, cible, responsable, échéance, actions, méthode d'évaluation des résultats.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "inventaire_actifs",
+    "title": "Inventaire des actifs informationnels",
+    "description": "Inventaire des actifs liés à l'information : applications, données, matériels, services, avec propriétaires et classification.",
+    "clauses": ["8.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["exports d'outils IT (parc, CMDB)", "liste des applications et licences", "schéma d'architecture", "contrats prestataires IT"],
+    "generation_template": "Tableau : actif, type, propriétaire, classification (confidentialité/intégrité/disponibilité), localisation, criticité.",
+    "validation_rules": { "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "politiques_thematiques",
+    "title": "Politiques de sécurité thématiques",
+    "description": "Politiques opérationnelles découlant de la politique générale : contrôle d'accès, mots de passe, sauvegarde, poste de travail, télétravail, utilisation acceptable des ressources.",
+    "clauses": ["5.2", "8.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "gestion_acces": { "type": "text", "label": "Comment les accès sont accordés, revus et retirés (arrivées/départs, comptes à privilèges)", "required": true },
+      "regles_mots_de_passe": { "type": "text", "label": "Règles de mots de passe et d'authentification (MFA ?)", "required": true },
+      "sauvegardes": { "type": "text", "label": "Stratégie de sauvegarde (quoi, fréquence, où, tests de restauration)", "required": true },
+      "teletravail_nomadisme": { "type": "text", "label": "Règles applicables au télétravail et aux équipements nomades", "required": true },
+      "usage_acceptable": { "type": "text", "label": "Règles d'utilisation acceptable des ressources informatiques", "required": true }
+    },
+    "generation_template": "Recueil de politiques thématiques structuré par sujet : objet, périmètre, règles, responsabilités, sanctions en cas de non-respect.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "procedure_gestion_incidents",
+    "title": "Procédure de gestion des incidents de sécurité",
+    "description": "Processus de détection, signalement, qualification, traitement et capitalisation des incidents de sécurité de l'information, incluant les obligations de notification (CNIL, clients).",
+    "clauses": ["8.1", "10.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "canaux_signalement": { "type": "text", "label": "Comment un incident est signalé (qui prévenir, par quel canal)", "required": true },
+      "responsable_traitement": { "type": "string", "label": "Qui pilote le traitement des incidents", "required": true },
+      "classification_incidents": { "type": "text", "label": "Niveaux de gravité et exemples", "required": true },
+      "notification_externe": { "type": "text", "label": "Cas et modalités de notification externe (CNIL sous 72 h pour les violations de données personnelles, clients, assureur)", "required": true }
+    },
+    "generation_template": "Procédure : signalement, qualification et gravité, traitement et confinement, notification (RGPD), retour d'expérience, registre des incidents.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true }
+  },
+  {
+    "key": "plan_continuite",
+    "title": "Plan de continuité et de reprise d'activité (PCA/PRA)",
+    "description": "Dispositions pour maintenir la sécurité de l'information et la disponibilité des services en situation de crise : scénarios, solutions de repli, procédures de reprise, tests.",
+    "clauses": ["8.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "scenarios": { "type": "array", "label": "Scénarios de crise couverts (indisponibilité locaux, panne SI majeure, cyberattaque, défaillance prestataire)", "required": true, "minItems": 2 },
+      "activites_critiques": { "type": "array", "label": "Activités critiques et durées d'interruption maximales admissibles", "required": true, "minItems": 1 },
+      "solutions_repli": { "type": "text", "label": "Solutions de repli prévues (site, matériel, restauration des sauvegardes)", "required": true },
+      "cellule_crise": { "type": "text", "label": "Composition et déclenchement de la cellule de crise", "required": true },
+      "tests": { "type": "text", "label": "Modalités et fréquence des tests du plan", "required": true }
+    },
+    "generation_template": "Plan structuré : scénarios, activités critiques (RTO/RPO), organisation de crise, procédures de reprise par scénario, modalités de test et de mise à jour.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "programme_audit_interne",
+    "title": "Programme d'audit interne",
+    "description": "Planification des audits internes du SMSI : périmètres, critères, fréquence, auditeurs objectifs et impartiaux.",
+    "clauses": ["9.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "perimetre": { "type": "array", "label": "Domaines et processus à auditer", "required": true, "minItems": 1 },
+      "frequence": { "type": "string", "label": "Fréquence des audits", "required": true },
+      "auditeurs": { "type": "array", "label": "Auditeurs pressentis avec garantie d'impartialité", "required": true, "minItems": 1 },
+      "planning": { "type": "array", "label": "Planning prévisionnel : domaine, période, auditeur", "required": true, "minItems": 1 }
+    },
+    "generation_template": "Programme annuel : objectifs, périmètres et critères, planning, auditeurs et impartialité, modalités de compte rendu.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "rapports_audit_interne",
+    "title": "Rapports d'audit interne",
+    "description": "Comptes rendus des audits internes réalisés. Trace d'une activité réelle — déposez vos rapports d'audits effectués.",
+    "clauses": ["9.2"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  },
+  {
+    "key": "revue_direction",
+    "title": "Compte rendu de revue de direction",
+    "description": "Conclusions de la dernière revue de direction du SMSI couvrant tous les éléments d'entrée exigés et les décisions prises.",
+    "clauses": ["9.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["comptes rendus de réunions", "tableaux de bord sécurité", "rapports d'audit interne", "registre des incidents", "appréciation des risques", "état du plan de traitement"],
+    "generation_template": "Compte rendu structuré selon les éléments d'entrée de la revue (actions précédentes, contexte, performance, incidents, audits, risques) puis décisions : améliorations, ressources, modifications du SMSI. Chaque donnée chiffrée doit provenir d'un document source.",
+    "validation_rules": { "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "registre_incidents",
+    "title": "Registre des incidents de sécurité",
+    "description": "Enregistrements réels des incidents de sécurité traités : nature, gravité, actions, notifications. Trace d'activité réelle — déposez votre registre.",
+    "clauses": ["8.1", "10.2"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  },
+  {
+    "key": "preuves_sensibilisation",
+    "title": "Preuves de sensibilisation du personnel",
+    "description": "Preuves des actions de sensibilisation à la sécurité menées : supports, feuilles de présence, résultats de campagnes de phishing simulé, attestations e-learning. Traces d'activités réelles.",
+    "clauses": ["7.3"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  }
+]

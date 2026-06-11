@@ -1,0 +1,188 @@
+[
+  {
+    "key": "domaine_application_sme",
+    "title": "Domaine d'application du SME",
+    "description": "Document définissant les limites et l'applicabilité de votre système de management environnemental : sites, activités, produits et services couverts.",
+    "clauses": ["4.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "raison_sociale": { "type": "string", "label": "Raison sociale de l'organisme", "required": true },
+      "sites": { "type": "array", "label": "Sites et limites physiques couverts", "required": true, "minItems": 1 },
+      "activites_couvertes": { "type": "text", "label": "Activités, produits et services couverts par le SME", "required": true },
+      "exclusions": { "type": "array", "label": "Éléments exclus, avec justification", "required": false }
+    },
+    "generation_template": "Document court : présentation de l'organisme, périmètre géographique et fonctionnel du SME, activités couvertes, exclusions justifiées.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true }
+  },
+  {
+    "key": "politique_environnementale",
+    "title": "Politique environnementale",
+    "description": "Déclaration de la direction : engagements de protection de l'environnement, de prévention de la pollution, de conformité et d'amélioration continue.",
+    "clauses": ["5.1", "5.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "raison_sociale": { "type": "string", "label": "Raison sociale", "required": true },
+      "activites": { "type": "text", "label": "Activités et contexte de l'organisme", "required": true },
+      "enjeux_environnementaux": { "type": "text", "label": "Principaux enjeux environnementaux de votre activité (énergie, déchets, rejets, transports…)", "required": true },
+      "engagements_direction": { "type": "text", "label": "Engagements de la direction (protection de l'environnement, prévention de la pollution, conformité, amélioration continue)", "required": true },
+      "axes_prioritaires": { "type": "array", "label": "Axes environnementaux prioritaires (3 à 5)", "required": true, "minItems": 3 },
+      "signataire": { "type": "string", "label": "Nom et fonction du signataire (dirigeant)", "required": true }
+    },
+    "generation_template": "Document d'une page signé par la direction : contexte et enjeux, engagements obligatoires (protection, prévention de la pollution, conformité, amélioration continue), axes prioritaires, communication.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "analyse_environnementale",
+    "title": "Analyse environnementale (registre des aspects et impacts)",
+    "description": "Identification des aspects environnementaux de vos activités, produits et services, de leurs impacts, et détermination des aspects significatifs avec leur cotation.",
+    "clauses": ["4.1", "6.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "activites_processus": { "type": "array", "label": "Activités et processus de l'organisme (y compris amont/aval pertinents : achats, transport, fin de vie)", "required": true, "minItems": 2 },
+      "aspects": { "type": "array", "label": "Pour chaque activité : aspects environnementaux (consommations, rejets, déchets, bruit, etc.) et impacts associés", "required": true, "minItems": 5 },
+      "methode_cotation": { "type": "text", "label": "Méthode de cotation de la significativité (critères : gravité, fréquence, maîtrise, exigence réglementaire…)", "required": true },
+      "situations_urgence": { "type": "array", "label": "Situations d'urgence potentielles identifiées (déversement, incendie, fuite…)", "required": true, "minItems": 1 }
+    },
+    "generation_template": "Registre : activité, aspect, impact, conditions (normal/dégradé/urgence), cotation, significatif oui/non, mesures de maîtrise existantes. Liste des aspects significatifs retenus.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "registre_obligations_conformite",
+    "title": "Registre des obligations de conformité (veille réglementaire)",
+    "description": "Recensement des exigences légales et autres exigences environnementales applicables (ICPE, déchets, eau, air, énergie…), avec leur application dans l'organisme.",
+    "clauses": ["4.2", "6.1", "9.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["veille réglementaire existante (prestataire ou interne)", "arrêtés préfectoraux et récépissés ICPE", "contrats de collecte des déchets", "rapports de contrôle réglementaire"],
+    "generation_template": "Tableau : texte ou exigence, thème (déchets, eau, air, énergie, ICPE…), applicabilité à l'organisme, dispositions de mise en conformité, échéances, état de conformité. Chaque exigence doit provenir d'une source fournie — aucune exigence réglementaire ne doit être inventée.",
+    "validation_rules": { "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "objectifs_environnementaux",
+    "title": "Objectifs environnementaux et programme d'actions",
+    "description": "Objectifs environnementaux mesurables liés aux aspects significatifs, avec actions, moyens, responsables, échéances et indicateurs.",
+    "clauses": ["6.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "objectifs": { "type": "array", "label": "Objectifs : intitulé mesurable, indicateur, cible, responsable, échéance, lien avec un aspect significatif", "required": true, "minItems": 2 },
+      "moyens": { "type": "text", "label": "Moyens et ressources alloués", "required": true },
+      "modalites_suivi": { "type": "text", "label": "Modalités et fréquence de suivi", "required": true }
+    },
+    "generation_template": "Programme environnemental : objectif, aspect concerné, indicateur, cible, actions, responsable, échéance, moyens, méthode d'évaluation.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "procedures_maitrise_operationnelle",
+    "title": "Procédures de maîtrise opérationnelle",
+    "description": "Procédures encadrant les activités liées aux aspects significatifs : gestion des déchets, stockage des produits dangereux, consommations, exigences communiquées aux prestataires.",
+    "clauses": ["8.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "gestion_dechets": { "type": "text", "label": "Organisation de la gestion des déchets (tri, filières, bordereaux)", "required": true },
+      "produits_dangereux": { "type": "text", "label": "Stockage et manipulation des produits dangereux (rétention, FDS) — indiquer « non concerné » le cas échéant", "required": true },
+      "consommations": { "type": "text", "label": "Maîtrise des consommations (énergie, eau)", "required": true },
+      "prestataires": { "type": "text", "label": "Exigences environnementales communiquées aux prestataires et sous-traitants", "required": true }
+    },
+    "generation_template": "Procédures par thème : règles opérationnelles, responsabilités, enregistrements associés, critères de maîtrise.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true }
+  },
+  {
+    "key": "plan_urgence_environnementale",
+    "title": "Plan de préparation aux situations d'urgence",
+    "description": "Dispositions de réponse aux situations d'urgence environnementale identifiées : consignes, moyens d'intervention, exercices.",
+    "clauses": ["8.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "situations": { "type": "array", "label": "Situations d'urgence couvertes (déversement, incendie, fuite gaz…)", "required": true, "minItems": 1 },
+      "consignes": { "type": "text", "label": "Consignes de réponse par situation (alerte, confinement, intervention)", "required": true },
+      "moyens": { "type": "text", "label": "Moyens d'intervention disponibles (kits antipollution, extincteurs, rétentions)", "required": true },
+      "exercices": { "type": "text", "label": "Modalités et fréquence des exercices ou tests", "required": true }
+    },
+    "generation_template": "Plan : situations identifiées, consignes de réponse, moyens, responsabilités, modalités d'exercice et de révision après incident.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "evaluation_conformite",
+    "title": "Évaluation de la conformité réglementaire",
+    "description": "Résultats de l'évaluation périodique de conformité aux obligations applicables, avec écarts constatés et actions associées.",
+    "clauses": ["9.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["registre des obligations de conformité", "rapports de contrôles réglementaires (ICPE, rejets…)", "bordereaux de suivi des déchets", "audits de conformité existants"],
+    "generation_template": "Tableau d'évaluation : obligation, état de conformité (conforme / écart), preuve, action corrective le cas échéant, échéance. Synthèse de l'évaluation et fréquence retenue.",
+    "validation_rules": { "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "programme_audit_interne",
+    "title": "Programme d'audit interne",
+    "description": "Planification des audits internes du SME : périmètres, critères, fréquence, auditeurs objectifs et impartiaux.",
+    "clauses": ["9.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "perimetre": { "type": "array", "label": "Processus et sites à auditer", "required": true, "minItems": 1 },
+      "frequence": { "type": "string", "label": "Fréquence des audits", "required": true },
+      "auditeurs": { "type": "array", "label": "Auditeurs pressentis avec garantie d'impartialité", "required": true, "minItems": 1 },
+      "planning": { "type": "array", "label": "Planning prévisionnel", "required": true, "minItems": 1 }
+    },
+    "generation_template": "Programme annuel : objectifs, périmètres et critères, planning, auditeurs et impartialité, modalités de compte rendu.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "rapports_audit_interne",
+    "title": "Rapports d'audit interne",
+    "description": "Comptes rendus des audits internes réalisés. Trace d'une activité réelle — déposez vos rapports.",
+    "clauses": ["9.2"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  },
+  {
+    "key": "revue_direction",
+    "title": "Compte rendu de revue de direction",
+    "description": "Conclusions de la dernière revue de direction du SME couvrant tous les éléments d'entrée exigés et les décisions prises.",
+    "clauses": ["9.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["comptes rendus de réunions", "indicateurs environnementaux", "rapports d'audit interne", "évaluation de conformité", "programme d'actions environnemental"],
+    "generation_template": "Compte rendu structuré selon les éléments d'entrée (actions précédentes, contexte, performance, conformité, audits, ressources) puis décisions documentées. Chaque donnée chiffrée doit provenir d'un document source.",
+    "validation_rules": { "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "indicateurs_environnementaux",
+    "title": "Indicateurs de performance environnementale",
+    "description": "Résultats réels de surveillance et mesure : consommations, déchets, rejets, incidents. Données réelles — déposez vos tableaux de bord.",
+    "clauses": ["9.1"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  },
+  {
+    "key": "registre_nc_actions_correctives",
+    "title": "Registre des non-conformités et actions correctives",
+    "description": "Enregistrements réels des non-conformités traitées et des actions correctives. Trace d'activité réelle — déposez votre registre.",
+    "clauses": ["10.2"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  }
+]

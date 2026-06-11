@@ -1,0 +1,179 @@
+[
+  {
+    "key": "domaine_application_sst",
+    "title": "Domaine d'application du système de management SST",
+    "description": "Document définissant les limites et l'applicabilité de votre système de management de la santé et de la sécurité au travail.",
+    "clauses": ["4.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "raison_sociale": { "type": "string", "label": "Raison sociale de l'organisme", "required": true },
+      "sites": { "type": "array", "label": "Sites et établissements couverts", "required": true, "minItems": 1 },
+      "activites_couvertes": { "type": "text", "label": "Activités couvertes, y compris celles sous-traitées ou réalisées chez des clients", "required": true },
+      "effectif": { "type": "number", "label": "Effectif total concerné (salariés, intérimaires, prestataires permanents)", "required": true }
+    },
+    "generation_template": "Document court : présentation de l'organisme, périmètre du système SST, activités et populations couvertes.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true }
+  },
+  {
+    "key": "politique_sst",
+    "title": "Politique de santé et sécurité au travail",
+    "description": "Déclaration de la direction : conditions de travail sûres et saines, conformité légale, élimination des dangers, consultation des travailleurs, amélioration continue.",
+    "clauses": ["5.1", "5.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "raison_sociale": { "type": "string", "label": "Raison sociale", "required": true },
+      "activites": { "type": "text", "label": "Activités et principaux risques du métier", "required": true },
+      "engagements_direction": { "type": "text", "label": "Engagements de la direction (conditions sûres et saines, conformité, élimination des dangers, consultation des travailleurs, amélioration continue)", "required": true },
+      "axes_prioritaires": { "type": "array", "label": "Axes de prévention prioritaires (3 à 5)", "required": true, "minItems": 3 },
+      "signataire": { "type": "string", "label": "Nom et fonction du signataire (dirigeant)", "required": true }
+    },
+    "generation_template": "Document d'une page signé par la direction, incluant explicitement les cinq engagements exigés par la norme et les axes prioritaires de prévention.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "duerp",
+    "title": "DUERP — Document unique d'évaluation des risques professionnels",
+    "description": "Inventaire et évaluation des risques professionnels par unité de travail, avec cotation et mesures de prévention. Obligation légale française (art. R4121-1 du Code du travail) et pièce maîtresse de l'identification des dangers.",
+    "clauses": ["6.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "identite_etablissement": { "type": "text", "label": "Identité et coordonnées de l'établissement", "required": true },
+      "effectif_total": { "type": "number", "label": "Effectif total", "required": true },
+      "secteurs_activites": { "type": "text", "label": "Secteur(s) et nature des activités", "required": true },
+      "unites_travail": { "type": "array", "label": "Unités de travail (postes, ateliers, services) — pour chacune : équipements et outils utilisés, substances ou produits manipulés, dangers et risques identifiés, cotation (gravité × probabilité/fréquence), mesures de prévention en place", "required": true, "minItems": 1 },
+      "plan_actions": { "type": "array", "label": "Plan d'actions de prévention : action, risque visé, responsable, échéance (PAPRIPACT obligatoire au-delà de 50 salariés)", "required": true, "minItems": 1 },
+      "modalites_mise_a_jour": { "type": "text", "label": "Modalités et fréquence de mise à jour (au moins annuelle si ≥ 11 salariés, et à chaque aménagement important)", "required": true }
+    },
+    "generation_template": "Document structuré par unité de travail : dangers, risques, cotation gravité × probabilité, mesures existantes, risque résiduel. Plan d'actions de prévention hiérarchisé. Modalités de mise à jour. Aucune donnée ne doit être inventée : chaque unité de travail, danger et cotation provient des réponses de l'entretien.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "registre_exigences_legales",
+    "title": "Registre des exigences légales et autres exigences SST",
+    "description": "Recensement des exigences légales et autres exigences applicables en santé-sécurité (Code du travail, vérifications périodiques obligatoires, conventions…).",
+    "clauses": ["4.2", "6.1", "9.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["veille réglementaire existante", "rapports de vérifications périodiques (électricité, levage, incendie…)", "fiche d'entreprise du service de santé au travail", "accords et conventions applicables"],
+    "generation_template": "Tableau : exigence, source (texte, organisme), applicabilité, dispositions de conformité, échéances (vérifications périodiques), état. Chaque exigence doit provenir d'une source fournie — aucune exigence réglementaire ne doit être inventée.",
+    "validation_rules": { "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "objectifs_sst",
+    "title": "Objectifs SST et programme de prévention",
+    "description": "Objectifs SST mesurables issus de l'évaluation des risques et de la consultation des travailleurs, avec actions, responsables, échéances et indicateurs.",
+    "clauses": ["6.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "objectifs": { "type": "array", "label": "Objectifs : intitulé mesurable, indicateur (taux de fréquence, presqu'accidents…), cible, responsable, échéance", "required": true, "minItems": 2 },
+      "lien_risques": { "type": "text", "label": "Lien des objectifs avec les risques prioritaires du DUERP", "required": true },
+      "consultation": { "type": "text", "label": "Comment les travailleurs ont été consultés sur ces objectifs", "required": true },
+      "modalites_suivi": { "type": "text", "label": "Modalités et fréquence de suivi", "required": true }
+    },
+    "generation_template": "Programme : objectif, risque visé, indicateur, cible, actions, responsable, échéance, moyens, méthode d'évaluation.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "consultation_participation",
+    "title": "Modalités de consultation et participation des travailleurs",
+    "description": "Description des dispositifs de consultation et de participation des travailleurs et de leurs représentants (CSE, causeries, remontées de situations dangereuses).",
+    "clauses": ["5.4"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "instances": { "type": "text", "label": "Instances existantes (CSE, CSSCT, référent sécurité…) et leur fonctionnement", "required": true },
+      "dispositifs_participation": { "type": "text", "label": "Dispositifs de participation du terrain (causeries sécurité, boîte à idées, remontées de presqu'accidents, droit de retrait)", "required": true },
+      "sujets_consultation": { "type": "text", "label": "Sujets sur lesquels les travailleurs sont consultés (politique, objectifs, évaluation des risques, changements)", "required": true },
+      "communication_resultats": { "type": "text", "label": "Comment les résultats et suites données sont communiqués aux travailleurs", "required": true }
+    },
+    "generation_template": "Document : instances et dispositifs, sujets de consultation et de participation, fréquences, traçabilité, communication des suites données.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true }
+  },
+  {
+    "key": "plan_urgence_sst",
+    "title": "Procédures de préparation aux situations d'urgence",
+    "description": "Dispositions de réponse aux urgences : incendie, accident grave, premiers secours, évacuation, avec moyens, formations et exercices.",
+    "clauses": ["8.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "situations": { "type": "array", "label": "Situations d'urgence couvertes (incendie, accident grave, malaise, fuite…)", "required": true, "minItems": 2 },
+      "consignes": { "type": "text", "label": "Consignes par situation (alerte, secours, évacuation, points de rassemblement)", "required": true },
+      "secouristes": { "type": "text", "label": "Sauveteurs secouristes du travail : nombre, formation, répartition", "required": true },
+      "moyens": { "type": "text", "label": "Moyens disponibles (trousses de secours, extincteurs, défibrillateur, alarmes)", "required": true },
+      "exercices": { "type": "text", "label": "Modalités et fréquence des exercices (évacuation incendie…)", "required": true }
+    },
+    "generation_template": "Procédures : situations, consignes d'alerte et d'intervention, organisation des secours, moyens, formations, exercices et retours d'expérience.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "programme_audit_interne",
+    "title": "Programme d'audit interne",
+    "description": "Planification des audits internes du système SST : périmètres, critères, fréquence, auditeurs objectifs et impartiaux.",
+    "clauses": ["9.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "perimetre": { "type": "array", "label": "Processus et sites à auditer", "required": true, "minItems": 1 },
+      "frequence": { "type": "string", "label": "Fréquence des audits", "required": true },
+      "auditeurs": { "type": "array", "label": "Auditeurs pressentis avec garantie d'impartialité", "required": true, "minItems": 1 },
+      "planning": { "type": "array", "label": "Planning prévisionnel", "required": true, "minItems": 1 }
+    },
+    "generation_template": "Programme annuel : objectifs, périmètres et critères, planning, auditeurs et impartialité, communication des résultats aux travailleurs.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "rapports_audit_interne",
+    "title": "Rapports d'audit interne",
+    "description": "Comptes rendus des audits internes réalisés. Trace d'une activité réelle — déposez vos rapports.",
+    "clauses": ["9.2"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  },
+  {
+    "key": "revue_direction",
+    "title": "Compte rendu de revue de direction",
+    "description": "Conclusions de la dernière revue de direction du système SST couvrant tous les éléments d'entrée exigés et les décisions prises.",
+    "clauses": ["9.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["comptes rendus de réunions ou de CSE", "indicateurs SST (accidents, taux de fréquence)", "rapports d'audit interne", "registre des accidents", "DUERP et plan d'actions"],
+    "generation_template": "Compte rendu structuré selon les éléments d'entrée (actions précédentes, performance SST, événements indésirables, conformité, consultation des travailleurs) puis décisions documentées et communiquées. Chaque donnée chiffrée doit provenir d'un document source.",
+    "validation_rules": { "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "registre_accidents",
+    "title": "Registre des accidents et événements indésirables",
+    "description": "Enregistrements réels des accidents du travail, presqu'accidents et situations dangereuses signalées, avec analyses et actions. Trace d'activité réelle — déposez vos registres.",
+    "clauses": ["10.2"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  },
+  {
+    "key": "preuves_formations_sst",
+    "title": "Preuves de formation et d'habilitation SST",
+    "description": "Attestations de formation sécurité, habilitations (électriques, CACES…), accueils sécurité des nouveaux arrivants. Documents émis lors d'activités réelles ou par des tiers.",
+    "clauses": ["7.2", "7.3"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  }
+]

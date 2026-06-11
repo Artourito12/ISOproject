@@ -1,0 +1,7 @@
+{
+  "code": "iso27001",
+  "name": "ISO/IEC 27001 — Sécurité de l'information",
+  "description": "Exigences relatives aux systèmes de management de la sécurité de l'information (SMSI) : protection de la confidentialité, de l'intégrité et de la disponibilité de l'information.",
+  "edition": "2022",
+  "referential_version": "1.0.0"
+}

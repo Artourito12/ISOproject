@@ -1,0 +1,38 @@
+[
+  { "number": "4", "title": "Contexte de l'organisme", "requirement": null },
+  { "number": "4.1", "title": "Compréhension de l'organisme et de son contexte", "requirement": "Déterminer les enjeux externes et internes pertinents pour la finalité de l'organisme et affectant sa capacité à atteindre les résultats attendus du système de management SST." },
+  { "number": "4.2", "title": "Besoins et attentes des travailleurs et autres parties intéressées", "requirement": "Identifier les parties intéressées pertinentes (en premier lieu les travailleurs), leurs besoins et attentes, et ceux qui deviennent des exigences légales ou autres." },
+  { "number": "4.3", "title": "Détermination du domaine d'application", "requirement": "Définir les limites et l'applicabilité du système de management SST, en incluant les activités liées au travail sous le contrôle ou l'influence de l'organisme ; domaine d'application disponible sous forme documentée." },
+  { "number": "4.4", "title": "Système de management de la SST", "requirement": "Établir, mettre en œuvre, tenir à jour et améliorer en continu le système de management SST, y compris les processus nécessaires et leurs interactions." },
+
+  { "number": "5", "title": "Leadership et participation des travailleurs", "requirement": null },
+  { "number": "5.1", "title": "Leadership et engagement", "requirement": "La direction doit démontrer son leadership : responsabilité globale de la protection de la santé et de la sécurité des travailleurs, politique et objectifs compatibles avec la stratégie, intégration dans les processus, ressources, culture de prévention, protection des travailleurs contre les représailles lorsqu'ils signalent." },
+  { "number": "5.2", "title": "Politique de SST", "requirement": "Établir une politique SST incluant l'engagement de fournir des conditions de travail sûres et saines, de satisfaire aux exigences légales et autres, d'éliminer les dangers et réduire les risques, d'améliorer en continu et de consulter les travailleurs. Documentée, communiquée, disponible." },
+  { "number": "5.3", "title": "Rôles, responsabilités et autorités", "requirement": "Attribuer et communiquer les responsabilités et autorités des rôles pertinents pour la SST à tous les niveaux ; les travailleurs assument leurs responsabilités pour les aspects sur lesquels ils ont un contrôle." },
+  { "number": "5.4", "title": "Consultation et participation des travailleurs", "requirement": "Établir des processus de consultation et de participation des travailleurs (et de leurs représentants) à l'élaboration, la planification, la mise en œuvre et l'évaluation du système de management SST ; lever les obstacles à la participation." },
+
+  { "number": "6", "title": "Planification", "requirement": null },
+  { "number": "6.1", "title": "Actions face aux risques et opportunités", "requirement": "Identifier les dangers de manière continue et proactive ; évaluer les risques SST et les autres risques du système ; identifier les opportunités d'amélioration ; déterminer les exigences légales et autres applicables ; planifier les actions correspondantes et leur intégration dans les processus." },
+  { "number": "6.2", "title": "Objectifs de SST et planification", "requirement": "Établir des objectifs SST mesurables (si réalisable) aux fonctions et niveaux pertinents, cohérents avec la politique, en tenant compte des résultats d'évaluation des risques et de la consultation des travailleurs ; planifier actions, ressources, responsables, échéances et évaluation." },
+
+  { "number": "7", "title": "Support", "requirement": null },
+  { "number": "7.1", "title": "Ressources", "requirement": "Déterminer et fournir les ressources nécessaires au système de management SST." },
+  { "number": "7.2", "title": "Compétences", "requirement": "Déterminer les compétences nécessaires des travailleurs ayant une incidence sur la performance SST, s'assurer de leur compétence (y compris l'aptitude à identifier les dangers) et conserver des preuves documentées." },
+  { "number": "7.3", "title": "Sensibilisation", "requirement": "Sensibiliser les travailleurs à la politique et aux objectifs SST, à leur contribution, aux dangers et risques qui les concernent, à leur droit de se retirer de situations dangereuses." },
+  { "number": "7.4", "title": "Communication", "requirement": "Établir les processus de communication interne et externe pertinents pour la SST, en tenant compte de la diversité des publics (langue, culture, handicap)." },
+  { "number": "7.5", "title": "Informations documentées", "requirement": "Inclure les informations documentées exigées et nécessaires ; maîtriser leur création, mise à jour, diffusion, conservation et élimination." },
+
+  { "number": "8", "title": "Réalisation des activités opérationnelles", "requirement": null },
+  { "number": "8.1", "title": "Planification et maîtrise opérationnelles", "requirement": "Planifier et maîtriser les processus nécessaires : élimination des dangers et réduction des risques selon la hiérarchie des mesures de prévention, pilotage du changement, maîtrise des achats, des prestataires extérieurs et de l'externalisation." },
+  { "number": "8.2", "title": "Préparation et réponse aux situations d'urgence", "requirement": "Établir, mettre en œuvre et tester les processus de préparation et de réponse aux situations d'urgence identifiées : premiers secours, évacuation, formation, exercices, communication aux travailleurs et parties intéressées." },
+
+  { "number": "9", "title": "Évaluation des performances", "requirement": null },
+  { "number": "9.1", "title": "Surveillance, mesure, analyse et évaluation", "requirement": "Surveiller et mesurer la performance SST (conformité légale, activités liées aux dangers, atteinte des objectifs) avec des équipements appropriés ; évaluer périodiquement la conformité aux exigences légales et autres ; preuves documentées." },
+  { "number": "9.2", "title": "Audit interne", "requirement": "Réaliser des audits internes à intervalles planifiés : programme d'audit, critères et périmètre, auditeurs objectifs et impartiaux, résultats communiqués aux managers et aux travailleurs concernés, preuves documentées." },
+  { "number": "9.3", "title": "Revue de direction", "requirement": "Revoir le système de management SST à intervalles planifiés : actions précédentes, évolutions du contexte, performance SST (événements indésirables, audits, conformité, consultation), ressources, communications pertinentes, opportunités d'amélioration ; conclusions communiquées aux travailleurs et documentées." },
+
+  { "number": "10", "title": "Amélioration", "requirement": null },
+  { "number": "10.1", "title": "Généralités", "requirement": "Déterminer les opportunités d'amélioration et mettre en œuvre les actions nécessaires." },
+  { "number": "10.2", "title": "Événement indésirable, non-conformité et actions correctives", "requirement": "Réagir aux événements indésirables (accidents, presqu'accidents) et non-conformités : analyse avec participation des travailleurs, identification des causes, actions correctives, réévaluation des risques, vérification d'efficacité ; preuves documentées communiquées aux travailleurs concernés." },
+  { "number": "10.3", "title": "Amélioration continue", "requirement": "Améliorer en continu la pertinence, l'adéquation et l'efficacité du système : performance SST, culture de prévention, participation des travailleurs." }
+]

@@ -1,0 +1,38 @@
+[
+  { "number": "4", "title": "Contexte de l'organisation", "requirement": null },
+  { "number": "4.1", "title": "Compréhension de l'organisation et de son contexte", "requirement": "Déterminer les enjeux externes et internes pertinents pour la finalité de l'organisation et qui influent sur sa capacité à atteindre les résultats attendus du SMSI." },
+  { "number": "4.2", "title": "Besoins et attentes des parties intéressées", "requirement": "Identifier les parties intéressées pertinentes pour le SMSI, leurs exigences, et celles qui seront traitées par le SMSI." },
+  { "number": "4.3", "title": "Détermination du domaine d'application du SMSI", "requirement": "Définir les limites et l'applicabilité du SMSI en tenant compte des enjeux, des exigences des parties intéressées et des interfaces avec d'autres organisations ; le domaine d'application doit être disponible sous forme d'information documentée." },
+  { "number": "4.4", "title": "Système de management de la sécurité de l'information", "requirement": "Établir, mettre en œuvre, tenir à jour et améliorer en continu le SMSI, y compris les processus nécessaires et leurs interactions." },
+
+  { "number": "5", "title": "Leadership", "requirement": null },
+  { "number": "5.1", "title": "Leadership et engagement", "requirement": "La direction doit démontrer son leadership vis-à-vis du SMSI : politique et objectifs compatibles avec la stratégie, intégration des exigences dans les processus, ressources disponibles, communication de l'importance de la sécurité de l'information." },
+  { "number": "5.2", "title": "Politique de sécurité de l'information", "requirement": "Établir une politique de sécurité de l'information adaptée à la finalité de l'organisation, incluant les objectifs (ou leur cadre) et l'engagement de satisfaire aux exigences applicables et d'améliorer en continu le SMSI. Documentée, communiquée, disponible." },
+  { "number": "5.3", "title": "Rôles, responsabilités et autorités", "requirement": "Attribuer et communiquer les responsabilités et autorités des rôles pertinents pour la sécurité de l'information, notamment pour la conformité du SMSI et le reporting de sa performance à la direction." },
+
+  { "number": "6", "title": "Planification", "requirement": null },
+  { "number": "6.1", "title": "Actions face aux risques et opportunités", "requirement": "Définir et appliquer un processus d'appréciation des risques de sécurité de l'information (critères, identification, analyse, évaluation) et un processus de traitement des risques ; produire une déclaration d'applicabilité justifiant l'inclusion ou l'exclusion des mesures de l'annexe A ; établir un plan de traitement des risques approuvé par les propriétaires de risques." },
+  { "number": "6.2", "title": "Objectifs de sécurité de l'information et planification", "requirement": "Établir des objectifs de sécurité mesurables aux fonctions et niveaux pertinents, cohérents avec la politique, documentés, avec actions, ressources, responsables, échéances et évaluation des résultats." },
+  { "number": "6.3", "title": "Planification des modifications", "requirement": "Réaliser les modifications du SMSI de façon planifiée." },
+
+  { "number": "7", "title": "Support", "requirement": null },
+  { "number": "7.1", "title": "Ressources", "requirement": "Identifier et fournir les ressources nécessaires à l'établissement, la mise en œuvre, la tenue à jour et l'amélioration continue du SMSI." },
+  { "number": "7.2", "title": "Compétences", "requirement": "Déterminer les compétences nécessaires des personnes dont le travail affecte la performance de sécurité, s'assurer qu'elles sont compétentes et conserver des preuves documentées." },
+  { "number": "7.3", "title": "Sensibilisation", "requirement": "S'assurer que le personnel est sensibilisé à la politique de sécurité, à sa contribution à l'efficacité du SMSI et aux conséquences d'un non-respect des exigences." },
+  { "number": "7.4", "title": "Communication", "requirement": "Déterminer les besoins de communication interne et externe pertinents pour le SMSI : sur quoi, quand, avec qui, comment communiquer." },
+  { "number": "7.5", "title": "Informations documentées", "requirement": "Inclure les informations documentées exigées par la norme et celles jugées nécessaires ; maîtriser leur création, mise à jour, protection, diffusion, conservation et élimination." },
+
+  { "number": "8", "title": "Fonctionnement", "requirement": null },
+  { "number": "8.1", "title": "Planification et contrôle opérationnels", "requirement": "Planifier, mettre en œuvre et contrôler les processus nécessaires pour satisfaire aux exigences et réaliser les actions de la planification ; maîtriser les modifications et les processus externalisés." },
+  { "number": "8.2", "title": "Appréciation des risques de sécurité de l'information", "requirement": "Réaliser des appréciations des risques à intervalles planifiés ou lors de changements significatifs, selon les critères établis ; conserver les résultats sous forme documentée." },
+  { "number": "8.3", "title": "Traitement des risques de sécurité de l'information", "requirement": "Mettre en œuvre le plan de traitement des risques et conserver les résultats sous forme documentée." },
+
+  { "number": "9", "title": "Évaluation des performances", "requirement": null },
+  { "number": "9.1", "title": "Surveillance, mesures, analyse et évaluation", "requirement": "Déterminer ce qui doit être surveillé et mesuré (y compris processus et mesures de sécurité), les méthodes, les échéances et les responsables ; évaluer la performance de sécurité et l'efficacité du SMSI ; conserver les preuves documentées." },
+  { "number": "9.2", "title": "Audit interne", "requirement": "Réaliser des audits internes à intervalles planifiés : programme d'audit, critères et périmètre par audit, auditeurs objectifs et impartiaux, résultats rapportés à la direction, preuves documentées." },
+  { "number": "9.3", "title": "Revue de direction", "requirement": "Revoir le SMSI à intervalles planifiés : état des actions précédentes, évolutions du contexte, retours sur la performance de sécurité (non-conformités, mesures, audits, atteinte des objectifs), retours des parties intéressées, résultats de l'appréciation des risques et état du plan de traitement, opportunités d'amélioration ; conclusions documentées." },
+
+  { "number": "10", "title": "Amélioration", "requirement": null },
+  { "number": "10.1", "title": "Amélioration continue", "requirement": "Améliorer en continu la pertinence, l'adéquation et l'efficacité du SMSI." },
+  { "number": "10.2", "title": "Non-conformité et actions correctives", "requirement": "Réagir aux non-conformités, évaluer la nécessité d'éliminer les causes, mettre en œuvre les actions nécessaires, en examiner l'efficacité ; conserver les preuves documentées de la nature des non-conformités, des actions menées et de leurs résultats." }
+]

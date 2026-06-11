@@ -1,0 +1,37 @@
+[
+  { "number": "4", "title": "Contexte de l'organisme", "requirement": null },
+  { "number": "4.1", "title": "Compréhension de l'organisme et de son contexte", "requirement": "Déterminer les enjeux externes et internes pertinents, y compris les conditions environnementales affectées par l'organisme ou susceptibles de l'affecter." },
+  { "number": "4.2", "title": "Besoins et attentes des parties intéressées", "requirement": "Identifier les parties intéressées pertinentes pour le SME, leurs besoins et attentes, et ceux qui deviennent des obligations de conformité." },
+  { "number": "4.3", "title": "Détermination du domaine d'application du SME", "requirement": "Définir les limites et l'applicabilité du SME (unités, fonctions, limites physiques, activités, produits et services) ; tenir le domaine d'application à jour sous forme documentée." },
+  { "number": "4.4", "title": "Système de management environnemental", "requirement": "Établir, mettre en œuvre, tenir à jour et améliorer en continu le SME, y compris les processus nécessaires et leurs interactions." },
+
+  { "number": "5", "title": "Leadership", "requirement": null },
+  { "number": "5.1", "title": "Leadership et engagement", "requirement": "La direction doit démontrer son leadership : responsabilité de l'efficacité du SME, politique et objectifs compatibles avec la stratégie, intégration des exigences dans les processus métier, ressources, promotion de l'amélioration continue." },
+  { "number": "5.2", "title": "Politique environnementale", "requirement": "Établir une politique environnementale adaptée au contexte, incluant les engagements de protection de l'environnement (dont prévention de la pollution), de respect des obligations de conformité et d'amélioration continue. Documentée, communiquée, disponible." },
+  { "number": "5.3", "title": "Rôles, responsabilités et autorités", "requirement": "Attribuer et communiquer les responsabilités et autorités des rôles pertinents, notamment pour la conformité du SME et le reporting de sa performance à la direction." },
+
+  { "number": "6", "title": "Planification", "requirement": null },
+  { "number": "6.1", "title": "Actions face aux risques et opportunités", "requirement": "Déterminer les aspects environnementaux des activités, produits et services et leurs impacts, identifier les aspects significatifs ; déterminer les obligations de conformité applicables ; déterminer les risques et opportunités et planifier les actions correspondantes." },
+  { "number": "6.2", "title": "Objectifs environnementaux et planification", "requirement": "Établir des objectifs environnementaux mesurables (si réalisable) aux fonctions et niveaux pertinents, cohérents avec la politique, en tenant compte des aspects significatifs et des obligations de conformité ; planifier actions, ressources, responsables, échéances et évaluation des résultats." },
+
+  { "number": "7", "title": "Support", "requirement": null },
+  { "number": "7.1", "title": "Ressources", "requirement": "Déterminer et fournir les ressources nécessaires au SME." },
+  { "number": "7.2", "title": "Compétences", "requirement": "Déterminer les compétences nécessaires des personnes dont le travail affecte la performance environnementale, s'assurer de leur compétence et conserver des preuves documentées." },
+  { "number": "7.3", "title": "Sensibilisation", "requirement": "Sensibiliser le personnel à la politique environnementale, aux aspects significatifs liés à leur travail, à leur contribution et aux conséquences d'un non-respect." },
+  { "number": "7.4", "title": "Communication", "requirement": "Établir les processus de communication interne et externe pertinents pour le SME, y compris la communication des informations pertinentes pour les obligations de conformité." },
+  { "number": "7.5", "title": "Informations documentées", "requirement": "Inclure les informations documentées exigées et nécessaires ; maîtriser leur création, mise à jour, diffusion, conservation et élimination." },
+
+  { "number": "8", "title": "Réalisation des activités opérationnelles", "requirement": null },
+  { "number": "8.1", "title": "Planification et maîtrise opérationnelles", "requirement": "Établir et maîtriser les processus nécessaires pour satisfaire aux exigences du SME et réaliser les actions planifiées ; intégrer une perspective de cycle de vie ; maîtriser les processus externalisés et communiquer les exigences environnementales aux prestataires." },
+  { "number": "8.2", "title": "Préparation et réponse aux situations d'urgence", "requirement": "Établir, mettre en œuvre et tester les processus de préparation et de réponse aux situations d'urgence environnementale identifiées ; prévenir ou atténuer les impacts, réviser après incident ou exercice." },
+
+  { "number": "9", "title": "Évaluation des performances", "requirement": null },
+  { "number": "9.1", "title": "Surveillance, mesure, analyse et évaluation", "requirement": "Surveiller et mesurer la performance environnementale avec des équipements appropriés (étalonnés si nécessaire) ; évaluer périodiquement la conformité aux obligations applicables et conserver des preuves documentées de ces évaluations." },
+  { "number": "9.2", "title": "Audit interne", "requirement": "Réaliser des audits internes à intervalles planifiés : programme d'audit, critères et périmètre, auditeurs objectifs et impartiaux, résultats rapportés à la direction, preuves documentées." },
+  { "number": "9.3", "title": "Revue de direction", "requirement": "Revoir le SME à intervalles planifiés : actions précédentes, évolutions du contexte (aspects, obligations, risques), performance environnementale, conformité, audits, ressources, communications des parties intéressées, opportunités d'amélioration ; conclusions documentées." },
+
+  { "number": "10", "title": "Amélioration", "requirement": null },
+  { "number": "10.1", "title": "Généralités", "requirement": "Déterminer les opportunités d'amélioration et mettre en œuvre les actions pour atteindre les résultats attendus du SME." },
+  { "number": "10.2", "title": "Non-conformité et actions correctives", "requirement": "Réagir aux non-conformités, traiter les conséquences (y compris atténuer les impacts environnementaux négatifs), éliminer les causes, vérifier l'efficacité des actions ; preuves documentées." },
+  { "number": "10.3", "title": "Amélioration continue", "requirement": "Améliorer en continu la pertinence, l'adéquation et l'efficacité du SME pour améliorer la performance environnementale." }
+]
