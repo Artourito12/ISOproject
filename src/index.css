@@ -1,0 +1,264 @@
+:root {
+  --primary: #1d4e89;
+  --primary-dark: #14375f;
+  --bg: #f5f6f8;
+  --card-bg: #ffffff;
+  --text: #1c2430;
+  --text-muted: #5b6776;
+  --border: #dde2e9;
+  --success-bg: #e3f3e8;
+  --success-text: #1d6b3a;
+  --warning-bg: #fdf3df;
+  --warning-text: #8a6116;
+  --info-bg: #e7eef9;
+  --info-text: #1d4e89;
+  --neutral-bg: #eceff3;
+  --neutral-text: #5b6776;
+  --error: #b3362c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem;
+}
+
+h2 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button.link {
+  background: none;
+  color: var(--primary);
+  padding: 0.25rem;
+  text-decoration: underline;
+}
+
+input,
+select {
+  display: block;
+  width: 100%;
+  padding: 0.55rem;
+  margin-top: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.error {
+  color: var(--error);
+  font-size: 0.9rem;
+}
+
+/* Pages d'authentification */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-card .subtitle {
+  color: var(--text-muted);
+  margin-top: 0;
+}
+
+.auth-card form button[type="submit"] {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Pages applicatives */
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.back-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.completion {
+  background: var(--info-bg);
+  color: var(--info-text);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  white-space: nowrap;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state {
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.project-list .project-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.project-card:hover {
+  border-color: var(--primary);
+}
+
+/* Encarts — le rectangle entier est teinté selon le statut */
+.encart-a_fournir {
+  background: var(--card-bg);
+}
+
+.encart-en_cours {
+  background: var(--warning-bg);
+}
+
+.encart-fourni {
+  background: var(--info-bg);
+}
+
+.encart-valide {
+  background: var(--success-bg);
+}
+
+.encart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.encart-description {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.encart-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.encart-case {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.encart-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.encart-actions button {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.badge-a_fournir,
+.badge-en_cours {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.badge-fourni,
+.badge-audit {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.badge-valide,
+.badge-finalise {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.badge-en_cours,
+.badge-correction,
+.badge-optionnel {
+  background: var(--neutral-bg);
+  color: var(--neutral-text);
+}
+
+.form-inline {
+  display: grid;
+  gap: 0.5rem;
+}

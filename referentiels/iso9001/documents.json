@@ -1,0 +1,226 @@
+[
+  {
+    "key": "domaine_application",
+    "title": "Domaine d'application du SMQ",
+    "description": "Document définissant les limites et l'applicabilité de votre système de management de la qualité : sites, activités, produits et services couverts, et justification des exigences non applicables.",
+    "clauses": ["4.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "raison_sociale": { "type": "string", "label": "Raison sociale de l'organisme", "required": true },
+      "sites": { "type": "array", "label": "Sites et établissements couverts (adresses)", "required": true, "minItems": 1 },
+      "activites_couvertes": { "type": "text", "label": "Activités, produits et services couverts par le SMQ", "required": true },
+      "exclusions": { "type": "array", "label": "Exigences jugées non applicables, avec justification (ex. 8.3 si aucune activité de conception)", "required": false }
+    },
+    "generation_template": "Document court (1-2 pages) : présentation de l'organisme, périmètre géographique et fonctionnel du SMQ, liste des activités couvertes, exclusions justifiées une par une.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true }
+  },
+  {
+    "key": "politique_qualite",
+    "title": "Politique qualité",
+    "description": "Déclaration de la direction définissant les orientations qualité de l'organisme : engagements, cadre des objectifs, communication.",
+    "clauses": ["5.1", "5.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "raison_sociale": { "type": "string", "label": "Raison sociale", "required": true },
+      "activites": { "type": "text", "label": "Activités et contexte de l'organisme", "required": true },
+      "enjeux_strategiques": { "type": "text", "label": "Orientations stratégiques et enjeux principaux", "required": true },
+      "engagements_direction": { "type": "text", "label": "Engagements concrets de la direction (satisfaction client, conformité, amélioration continue…)", "required": true },
+      "axes_qualite": { "type": "array", "label": "Axes qualité prioritaires (3 à 5)", "required": true, "minItems": 3 },
+      "modalites_communication": { "type": "text", "label": "Comment la politique est communiquée et mise à disposition (affichage, intranet, livret d'accueil…)", "required": true },
+      "signataire": { "type": "string", "label": "Nom et fonction du signataire (dirigeant)", "required": true }
+    },
+    "generation_template": "Document d'une page, signé par la direction : contexte et ambition, engagements, axes prioritaires servant de cadre aux objectifs qualité, modalités de communication et de revue.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "objectifs_qualite",
+    "title": "Objectifs qualité et plans d'actions",
+    "description": "Objectifs qualité mesurables aux fonctions et niveaux pertinents, avec pour chacun : actions, ressources, responsable, échéance et méthode d'évaluation.",
+    "clauses": ["6.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "objectifs": { "type": "array", "label": "Objectifs qualité : pour chacun, intitulé mesurable, indicateur, cible, responsable, échéance, actions prévues", "required": true, "minItems": 2 },
+      "coherence_politique": { "type": "text", "label": "Lien de chaque objectif avec les axes de la politique qualité", "required": true },
+      "modalites_suivi": { "type": "text", "label": "Modalités et fréquence de suivi des objectifs", "required": true }
+    },
+    "generation_template": "Tableau des objectifs : objectif mesurable, indicateur, cible, responsable, échéance, actions, ressources, méthode d'évaluation des résultats. Cohérence explicite avec la politique qualité.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "cartographie_processus",
+    "title": "Cartographie et fiches processus",
+    "description": "Représentation des processus du SMQ : séquence et interactions, éléments d'entrée et de sortie, pilotes, indicateurs.",
+    "clauses": ["4.4"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["organigramme", "fiches de poste", "descriptions d'activités existantes", "procédures existantes"],
+    "generation_template": "Cartographie en trois familles (management, réalisation, support) ; pour chaque processus : finalité, pilote, entrées/sorties, interactions, indicateurs de pilotage.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true }
+  },
+  {
+    "key": "analyse_risques_opportunites",
+    "title": "Analyse des risques et opportunités",
+    "description": "Identification des risques et opportunités liés au contexte et aux processus, avec actions planifiées et évaluation de leur efficacité.",
+    "clauses": ["4.1", "4.2", "6.1"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "enjeux_externes": { "type": "array", "label": "Enjeux externes (marché, réglementation, concurrence, technologie…)", "required": true, "minItems": 1 },
+      "enjeux_internes": { "type": "array", "label": "Enjeux internes (organisation, compétences, moyens, culture…)", "required": true, "minItems": 1 },
+      "parties_interessees": { "type": "array", "label": "Parties intéressées pertinentes et leurs attentes (clients, salariés, fournisseurs, autorités…)", "required": true, "minItems": 2 },
+      "risques": { "type": "array", "label": "Risques identifiés : description, processus concerné, gravité, probabilité, actions de maîtrise", "required": true, "minItems": 3 },
+      "opportunites": { "type": "array", "label": "Opportunités identifiées et actions associées", "required": true, "minItems": 1 }
+    },
+    "generation_template": "Matrice contexte (enjeux internes/externes, parties intéressées et attentes) puis tableau risques/opportunités : description, cotation, actions, responsable, échéance, évaluation d'efficacité.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "fiches_de_fonction",
+    "title": "Fiches de fonction (rôles, responsabilités, autorités)",
+    "description": "Définition des responsabilités et autorités des rôles pertinents pour le SMQ, communiquées et comprises.",
+    "clauses": ["5.3", "7.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "fonctions": { "type": "array", "label": "Pour chaque fonction clé : intitulé, missions principales, responsabilités SMQ, autorités, rattachement hiérarchique, compétences requises", "required": true, "minItems": 2 }
+    },
+    "generation_template": "Une fiche par fonction : intitulé, rattachement, missions, responsabilités qualité, autorités (ce que la fonction peut décider), compétences et habilitations requises.",
+    "validation_rules": { "requires_version": true }
+  },
+  {
+    "key": "matrice_competences",
+    "title": "Matrice des compétences et plan de formation",
+    "description": "État des compétences nécessaires et détenues, écarts identifiés et actions d'acquisition (formations, tutorat, recrutement).",
+    "clauses": ["7.2", "7.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["CV ou dossiers du personnel", "registre des formations réalisées", "fiches de poste", "entretiens annuels"],
+    "generation_template": "Matrice personnes × compétences avec niveaux (à acquérir / acquis / maîtrisé / expert), écarts identifiés, plan d'actions de formation avec échéances.",
+    "validation_rules": { "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "procedure_informations_documentees",
+    "title": "Procédure de maîtrise des informations documentées",
+    "description": "Règles de création, identification, revue, approbation, diffusion, conservation et élimination des documents et enregistrements du SMQ.",
+    "clauses": ["7.5"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "outils_gestion": { "type": "text", "label": "Outils utilisés pour gérer les documents (GED, serveur partagé, classeurs…)", "required": true },
+      "regles_identification": { "type": "text", "label": "Règles d'identification et de codification des documents (références, versions)", "required": true },
+      "circuit_approbation": { "type": "text", "label": "Qui rédige, vérifie et approuve les documents", "required": true },
+      "durees_conservation": { "type": "text", "label": "Durées de conservation des enregistrements", "required": true }
+    },
+    "generation_template": "Procédure : périmètre, responsabilités, cycle de vie du document (création → approbation → diffusion → révision → archivage), gestion des versions, maîtrise des documents externes, conservation des enregistrements.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true }
+  },
+  {
+    "key": "maitrise_prestataires",
+    "title": "Évaluation et suivi des prestataires externes",
+    "description": "Critères et enregistrements d'évaluation, de sélection et de surveillance des fournisseurs et sous-traitants critiques.",
+    "clauses": ["8.4"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["liste des fournisseurs", "contrats ou commandes types", "historique d'incidents fournisseurs", "évaluations existantes"],
+    "generation_template": "Procédure courte (critères de sélection et de réévaluation) + tableau d'évaluation des prestataires critiques : criticité, critères notés, décision, suivi des performances.",
+    "validation_rules": { "requires_review_date": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "procedure_nc_actions_correctives",
+    "title": "Procédure de gestion des non-conformités et actions correctives",
+    "description": "Méthode de détection, traitement et suivi des non-conformités (produits, services, processus) et des actions correctives, jusqu'à l'évaluation de leur efficacité.",
+    "clauses": ["8.7", "10.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "sources_detection": { "type": "array", "label": "Sources de détection des non-conformités (contrôles, réclamations clients, audits…)", "required": true, "minItems": 1 },
+      "circuit_traitement": { "type": "text", "label": "Qui enregistre, qui décide du traitement (reprise, dérogation, rebut…), qui clôture", "required": true },
+      "outil_suivi": { "type": "string", "label": "Outil de suivi utilisé (registre, tableur, logiciel)", "required": true },
+      "analyse_causes": { "type": "text", "label": "Méthode d'analyse des causes utilisée (5 pourquoi, Ishikawa…)", "required": true }
+    },
+    "generation_template": "Procédure : détection et enregistrement, actions immédiates, analyse de cause, action corrective, vérification d'efficacité, clôture. Logigramme + responsabilités.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true }
+  },
+  {
+    "key": "registre_non_conformites",
+    "title": "Registre des non-conformités et actions correctives",
+    "description": "Enregistrements réels des non-conformités traitées : nature, actions menées, résultats. Ce document est la trace de votre activité réelle — il ne peut pas être généré, déposez votre registre.",
+    "clauses": ["8.7", "10.2"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": { "requires_review_date": false }
+  },
+  {
+    "key": "programme_audit_interne",
+    "title": "Programme d'audit interne",
+    "description": "Planification des audits internes : périmètres, critères, fréquence, méthodes, auditeurs (objectifs et impartiaux).",
+    "clauses": ["9.2"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 1,
+    "field_schema": {
+      "perimetre_processus": { "type": "array", "label": "Processus/activités à auditer", "required": true, "minItems": 1 },
+      "frequence": { "type": "string", "label": "Fréquence des audits (ex. chaque processus au moins une fois par an)", "required": true },
+      "auditeurs": { "type": "array", "label": "Auditeurs internes ou externes pressentis, avec garantie d'impartialité (on n'audite pas son propre travail)", "required": true, "minItems": 1 },
+      "planning": { "type": "array", "label": "Planning prévisionnel : processus, période, auditeur", "required": true, "minItems": 1 }
+    },
+    "generation_template": "Programme annuel : objectifs du programme, périmètres et critères, planning, auditeurs et règles d'impartialité, modalités de compte rendu et de suivi.",
+    "validation_rules": { "requires_version": true, "requires_review_date": true, "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "rapports_audit_interne",
+    "title": "Rapports d'audit interne",
+    "description": "Comptes rendus des audits internes réalisés : constats, écarts, conclusions. Trace d'une activité réelle — déposez vos rapports d'audits effectués.",
+    "clauses": ["9.2"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  },
+  {
+    "key": "indicateurs_satisfaction",
+    "title": "Indicateurs de performance et satisfaction client",
+    "description": "Résultats réels de surveillance et de mesure : indicateurs processus, enquêtes ou retours de satisfaction client. Données réelles — déposez vos tableaux de bord et résultats d'enquêtes.",
+    "clauses": ["9.1"],
+    "is_mandatory": true,
+    "evidence_type": "enregistrement",
+    "generation_case": 3,
+    "validation_rules": {}
+  },
+  {
+    "key": "revue_direction",
+    "title": "Compte rendu de revue de direction",
+    "description": "Conclusions de la dernière revue de direction couvrant tous les éléments d'entrée exigés (performance, satisfaction client, audits, non-conformités, ressources, risques) et les décisions prises.",
+    "clauses": ["9.3"],
+    "is_mandatory": true,
+    "evidence_type": "document_redige",
+    "generation_case": 2,
+    "source_hints": ["comptes rendus de réunions de direction", "tableaux de bord et indicateurs", "rapports d'audit interne", "registre des non-conformités", "plans d'actions en cours", "résultats de satisfaction client"],
+    "generation_template": "Compte rendu structuré selon les éléments d'entrée de la revue (état des actions précédentes, évolutions du contexte, performance, ressources, risques, opportunités) puis éléments de sortie : décisions d'amélioration, besoins en ressources, modifications du SMQ. Chaque donnée chiffrée doit provenir d'un document source.",
+    "validation_rules": { "requires_approval": true, "max_review_age_months": 12 }
+  },
+  {
+    "key": "preuves_etalonnage",
+    "title": "Preuves de vérification des équipements de mesure",
+    "description": "Certificats d'étalonnage ou de vérification des équipements de surveillance et de mesure, lorsque de tels équipements sont utilisés. Documents émis par des tiers — déposez vos certificats.",
+    "clauses": ["7.1"],
+    "is_mandatory": false,
+    "evidence_type": "preuve_externe",
+    "generation_case": 3,
+    "validation_rules": {}
+  }
+]
