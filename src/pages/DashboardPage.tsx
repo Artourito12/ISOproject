@@ -61,29 +61,80 @@ export default function DashboardPage() {
   }, []);
 
   async function handleGenerateStandard() {
-    if (!normQuery.trim() || generating) return;
+    const query = normQuery.trim();
+    if (!query || generating) return;
     setGenerating(true);
     setError(null);
     setGenerateNotice(null);
-    try {
-      const result = await apiPost<GenerateStandardResult>("/api/standards/generate", {
-        query: normQuery.trim(),
-      });
+
+    let done = false;
+    const startedAt = Date.now();
+
+    const finishSuccess = async (result: GenerateStandardResult) => {
+      if (done) return;
+      done = true;
       await loadData();
       setStandardCode(result.code);
       setNormQuery("");
       setGenerateNotice(
         result.existing
           ? `${result.name} est déjà au catalogue — elle est sélectionnée ci-dessus.`
-          : `${result.name} est prête (${result.clausesCount} clauses, ${result.documentsCount} documents requis). ` +
-            `Ce référentiel a été préparé automatiquement par l'IA ; un expert le relira prochainement. ` +
+          : `${result.name} est prête` +
+            (result.clausesCount
+              ? ` (${result.clausesCount} clauses, ${result.documentsCount} documents requis)`
+              : "") +
+            `. Ce référentiel a été préparé automatiquement par l'IA ; un expert le relira prochainement. ` +
             `Vous pouvez dès maintenant créer votre projet.`
       );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "La préparation de la norme a échoué");
-    } finally {
       setGenerating(false);
-    }
+    };
+
+    const finishError = (message: string) => {
+      if (done) return;
+      done = true;
+      setError(message);
+      setGenerating(false);
+    };
+
+    // La génération peut durer plusieurs minutes : on lance l'appel, et en parallèle
+    // on suit l'état de la demande en base. Le premier des deux qui conclut gagne.
+    let fetchErrorMessage: string | null = null;
+    apiPost<GenerateStandardResult>("/api/standards/generate", { query })
+      .then((result) => void finishSuccess(result))
+      .catch((err) => {
+        fetchErrorMessage = err instanceof Error ? err.message : "La préparation a échoué";
+      });
+
+    const poll = window.setInterval(async () => {
+      if (done) {
+        window.clearInterval(poll);
+        return;
+      }
+      const { data: request } = await supabase
+        .from("standard_requests")
+        .select("status, error_message, created_at, standards(code, name)")
+        .eq("query", query)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const fresh = request && new Date(request.created_at).getTime() > startedAt - 60000;
+      if (fresh && request.status === "traitee" && request.standards) {
+        window.clearInterval(poll);
+        const std = request.standards as unknown as { code: string; name: string };
+        await finishSuccess({ existing: false, code: std.code, name: std.name });
+      } else if (fresh && request.status === "erreur") {
+        window.clearInterval(poll);
+        finishError(request.error_message || "La préparation a échoué");
+      } else if (fetchErrorMessage && !fresh) {
+        // L'appel a échoué et aucune demande n'a été créée : erreur immédiate (ex. norme non reconnue)
+        window.clearInterval(poll);
+        finishError(fetchErrorMessage);
+      } else if (Date.now() - startedAt > 13 * 60 * 1000) {
+        window.clearInterval(poll);
+        finishError("La préparation prend plus de temps que prévu. Rechargez la page dans quelques minutes : la norme apparaîtra dans la liste.");
+      }
+    }, 8000);
   }
 
   async function handleCreate(e: FormEvent) {

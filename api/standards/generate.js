@@ -8,7 +8,7 @@ import { getUserFromRequest } from "../_lib/auth.js";
 import { anthropic, MODEL, callStructured } from "../_lib/claude.js";
 import { insertReferentiel } from "../_lib/referentiel.js";
 
-export const config = { maxDuration: 300 };
+export const config = { maxDuration: 800 };
 
 const IDENTIFY_SCHEMA = {
   type: "object",
@@ -137,7 +137,7 @@ async function researchStandard(name, edition) {
       max_tokens: 16000,
       system:
         "Vous êtes un expert en certification ISO. Vous produisez des notes de recherche précises, structurées et sourcées, en français.",
-      tools: [{ type: "web_search_20260209", name: "web_search" }],
+      tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 6 }],
       messages,
     });
     if (response.stop_reason !== "pause_turn") break;
