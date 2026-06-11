@@ -43,6 +43,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [normQuery, setNormQuery] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [generatingStep, setGeneratingStep] = useState<string | null>(null);
   const [generateNotice, setGenerateNotice] = useState<string | null>(null);
 
   async function loadData() {
@@ -60,6 +61,48 @@ export default function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Étape rejouable : les endpoints sont idempotents, on retente après une
+  // coupure réseau (le proxy peut couper les réponses longues sans tuer le serveur).
+  async function retryStep<T>(call: () => Promise<T>, attempts = 3): Promise<T> {
+    let lastError: unknown;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await call();
+      } catch (err) {
+        lastError = err;
+        const message = err instanceof Error ? err.message : "";
+        // Erreur métier renvoyée par l'API (4xx/5xx avec message) : inutile de retenter
+        if (message && !/failed to fetch|networkerror|load failed|erreur 50[24]/i.test(message)) {
+          throw err;
+        }
+        await new Promise((r) => setTimeout(r, 5000 * (i + 1)));
+      }
+    }
+    throw lastError;
+  }
+
+  async function pollRequestResult(requestId: string): Promise<GenerateStandardResult> {
+    const deadline = Date.now() + 10 * 60 * 1000;
+    while (Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 10000));
+      const { data: request } = await supabase
+        .from("standard_requests")
+        .select("status, error_message, standards(code, name)")
+        .eq("id", requestId)
+        .maybeSingle();
+      if (request?.status === "traitee" && request.standards) {
+        const std = request.standards as unknown as { code: string; name: string };
+        return { existing: false, code: std.code, name: std.name };
+      }
+      if (request?.status === "erreur") {
+        throw new Error(request.error_message || "La préparation a échoué");
+      }
+    }
+    throw new Error(
+      "La préparation prend plus de temps que prévu. Rechargez la page dans quelques minutes : la norme apparaîtra dans la liste."
+    );
+  }
+
   async function handleGenerateStandard() {
     const query = normQuery.trim();
     if (!query || generating) return;
@@ -67,12 +110,37 @@ export default function DashboardPage() {
     setError(null);
     setGenerateNotice(null);
 
-    let done = false;
-    const startedAt = Date.now();
+    try {
+      // Étape 1 : identification (rapide)
+      setGeneratingStep("Identification de la norme…");
+      const identity = await apiPost<GenerateStandardResult & { requestId?: string }>(
+        "/api/standards/generate",
+        { query }
+      );
 
-    const finishSuccess = async (result: GenerateStandardResult) => {
-      if (done) return;
-      done = true;
+      let result: GenerateStandardResult;
+      if (identity.existing || !identity.requestId) {
+        result = identity;
+      } else {
+        const requestId = identity.requestId;
+        // Étape 2 : recherche web approfondie
+        setGeneratingStep(`Recherche approfondie sur ${identity.name}… (2 à 4 min)`);
+        await retryStep(() => apiPost("/api/standards/research", { requestId }));
+
+        // Étape 3 : construction du référentiel
+        setGeneratingStep("Construction du référentiel (clauses, documents, schémas)… (3 à 7 min)");
+        try {
+          result = await retryStep(
+            () => apiPost<GenerateStandardResult>("/api/standards/build", { requestId }),
+            2
+          );
+        } catch {
+          // Le serveur a pu terminer malgré la coupure : on suit l'état en base
+          setGeneratingStep("Finalisation…");
+          result = await pollRequestResult(requestId);
+        }
+      }
+
       await loadData();
       setStandardCode(result.code);
       setNormQuery("");
@@ -86,55 +154,12 @@ export default function DashboardPage() {
             `. Ce référentiel a été préparé automatiquement par l'IA ; un expert le relira prochainement. ` +
             `Vous pouvez dès maintenant créer votre projet.`
       );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "La préparation de la norme a échoué");
+    } finally {
       setGenerating(false);
-    };
-
-    const finishError = (message: string) => {
-      if (done) return;
-      done = true;
-      setError(message);
-      setGenerating(false);
-    };
-
-    // La génération peut durer plusieurs minutes : on lance l'appel, et en parallèle
-    // on suit l'état de la demande en base. Le premier des deux qui conclut gagne.
-    let fetchErrorMessage: string | null = null;
-    apiPost<GenerateStandardResult>("/api/standards/generate", { query })
-      .then((result) => void finishSuccess(result))
-      .catch((err) => {
-        fetchErrorMessage = err instanceof Error ? err.message : "La préparation a échoué";
-      });
-
-    const poll = window.setInterval(async () => {
-      if (done) {
-        window.clearInterval(poll);
-        return;
-      }
-      const { data: request } = await supabase
-        .from("standard_requests")
-        .select("status, error_message, created_at, standards(code, name)")
-        .eq("query", query)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      const fresh = request && new Date(request.created_at).getTime() > startedAt - 60000;
-      if (fresh && request.status === "traitee" && request.standards) {
-        window.clearInterval(poll);
-        const std = request.standards as unknown as { code: string; name: string };
-        await finishSuccess({ existing: false, code: std.code, name: std.name });
-      } else if (fresh && request.status === "erreur") {
-        window.clearInterval(poll);
-        finishError(request.error_message || "La préparation a échoué");
-      } else if (fetchErrorMessage && !fresh) {
-        // L'appel a échoué et aucune demande n'a été créée : erreur immédiate (ex. norme non reconnue)
-        window.clearInterval(poll);
-        finishError(fetchErrorMessage);
-      } else if (Date.now() - startedAt > 13 * 60 * 1000) {
-        window.clearInterval(poll);
-        finishError("La préparation prend plus de temps que prévu. Rechargez la page dans quelques minutes : la norme apparaîtra dans la liste.");
-      }
-    }, 8000);
+      setGeneratingStep(null);
+    }
   }
 
   async function handleCreate(e: FormEvent) {
@@ -210,9 +235,10 @@ export default function DashboardPage() {
                 onClick={handleGenerateStandard}
                 disabled={generating || !normQuery.trim()}
               >
-                {generating ? "Recherche et préparation en cours… (1 à 3 min)" : "Préparer cette norme"}
+                {generating ? "Préparation en cours…" : "Préparer cette norme"}
               </button>
             </div>
+            {generatingStep && <p className="encart-description">{generatingStep}</p>}
             {generateNotice && <p className="notice">{generateNotice}</p>}
           </div>
           {error && <p className="error">{error}</p>}
