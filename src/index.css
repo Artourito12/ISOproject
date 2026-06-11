@@ -452,6 +452,80 @@ label {
   margin-top: 0;
 }
 
+/* ---------- Assistant (entretien guidé) ---------- */
+
+.assistant-page .chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 320px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.bubble {
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.bubble-assistant {
+  background: var(--gray-100);
+  color: var(--gray-900);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.bubble-user {
+  background: var(--brand-500);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.bubble-pending {
+  color: var(--gray-400);
+}
+
+.chat-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-input input {
+  flex: 1;
+  margin-top: 0;
+}
+
+.missing-fields {
+  font-size: 13px;
+  color: var(--gray-600);
+  background: var(--warning-50);
+  border-color: var(--warning-200);
+}
+
+.generated-doc {
+  border-top: 1px solid var(--gray-200);
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+.generated-doc pre {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 13px;
+  white-space: pre-wrap;
+  font-family: var(--font);
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
 /* ---------- Documents non rattachés ---------- */
 
 .unattached-row {

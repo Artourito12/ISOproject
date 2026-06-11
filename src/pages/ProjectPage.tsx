@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef, ChangeEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { apiPost } from "../lib/api";
 import { uploadProjectFile } from "../lib/uploads";
@@ -52,6 +52,7 @@ const CASE_LABELS: Record<number, string> = {
 
 export default function ProjectPage() {
   const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
   const { session, profile } = useAuth();
   const [projectName, setProjectName] = useState("");
   const [encarts, setEncarts] = useState<Encart[]>([]);
@@ -347,9 +348,19 @@ export default function ProjectPage() {
                       {busy ? "Téléversement…" : "Déposer un document"}
                     </button>
                   )}
-                  {doc.generation_case !== 3 && !encart.document_id && (
-                    <button disabled title="Bientôt disponible">
+                  {doc.generation_case === 1 && !encart.document_id && (
+                    <button
+                      onClick={() =>
+                        navigate(`/projets/${projectId}/encarts/${encart.id}/assistant`)
+                      }
+                      disabled={busy || uploading}
+                    >
                       Créer avec l'assistant
+                    </button>
+                  )}
+                  {doc.generation_case === 2 && !encart.document_id && (
+                    <button disabled title="Bientôt disponible">
+                      Créer à partir de vos documents
                     </button>
                   )}
                 </div>

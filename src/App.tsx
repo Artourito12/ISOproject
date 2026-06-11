@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProjectPage from "./pages/ProjectPage";
+import AssistantPage from "./pages/AssistantPage";
 
 function AppRoutes() {
   const { session, profile, loading } = useAuth();
@@ -16,6 +17,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<DashboardPage />} />
       <Route path="/projets/:projectId" element={<ProjectPage />} />
+      <Route path="/projets/:projectId/encarts/:requirementId/assistant" element={<AssistantPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
