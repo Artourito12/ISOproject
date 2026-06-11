@@ -145,34 +145,42 @@ export default async function handler(req, res) {
     return res.status(502).json({ error: `L'audit est indisponible : ${err.message}` });
   }
 
-  // Règles formelles re-vérifiées par le code : un manquement formel est un écart, point.
+  // Règles formelles re-vérifiées par le code (filet de sécurité) : on n'ajoute
+  // l'écart que si le modèle ne l'a pas déjà signalé lui-même.
+  const allText = verdict.ecarts.map((e) => `${e.titre} ${e.description}`.toLowerCase()).join(" ");
   const formalGaps = [];
-  if (rules.requires_version && !verdict.formal_checks.has_version) {
+  if (rules.requires_version && !verdict.formal_checks.has_version && !allText.includes("version")) {
     formalGaps.push({
       titre: "Numéro de version manquant",
       description: "Le référentiel exige que ce document porte un numéro de version identifiable.",
       clause: null,
     });
   }
-  if (rules.requires_review_date && !verdict.formal_checks.has_review_date) {
+  if (
+    rules.requires_review_date &&
+    !verdict.formal_checks.has_review_date &&
+    !allText.includes("revue") &&
+    !allText.includes("date")
+  ) {
     formalGaps.push({
       titre: "Date de revue manquante",
       description: "Le référentiel exige que ce document porte une date de revue ou de mise à jour.",
       clause: null,
     });
   }
-  if (rules.requires_approval && !verdict.formal_checks.has_approval) {
+  if (
+    rules.requires_approval &&
+    !verdict.formal_checks.has_approval &&
+    !allText.includes("approbation") &&
+    !allText.includes("signature")
+  ) {
     formalGaps.push({
       titre: "Approbation manquante",
       description: "Le référentiel exige une trace d'approbation (signature, validation nominative).",
       clause: null,
     });
   }
-
-  const existingTitles = new Set(verdict.ecarts.map((e) => e.titre));
-  for (const gap of formalGaps) {
-    if (!existingTitles.has(gap.titre)) verdict.ecarts.push(gap);
-  }
+  verdict.ecarts.push(...formalGaps);
   const conforme = verdict.conforme && verdict.ecarts.length === 0;
 
   const findings = {
