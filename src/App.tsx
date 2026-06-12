@@ -9,6 +9,7 @@ import ExtractionPage from "./pages/ExtractionPage";
 import AuditPage from "./pages/AuditPage";
 import DossierPage from "./pages/DossierPage";
 import ProjectDashboardPage from "./pages/ProjectDashboardPage";
+import ChatPage from "./pages/ChatPage";
 import AdminPage from "./pages/AdminPage";
 import TeamPage from "./pages/TeamPage";
 import InvitationPage from "./pages/InvitationPage";
@@ -41,6 +42,7 @@ function AppRoutes() {
       <Route path="/projets/:projectId/audit" element={<AuditPage />} />
       <Route path="/projets/:projectId/dossier" element={<DossierPage />} />
       <Route path="/projets/:projectId/tableau-de-bord" element={<ProjectDashboardPage />} />
+      <Route path="/projets/:projectId/chat" element={<ChatPage />} />
       <Route path="/equipe" element={<TeamPage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -26,6 +26,13 @@ interface ProjectDocument {
   title: string;
 }
 
+interface OfficialNorm {
+  id: string;
+  title: string;
+  storage_path: string;
+  created_at: string;
+}
+
 interface AuditFindings {
   conforme: boolean;
   ecarts: { titre: string; description: string; clause: string | null }[];
@@ -77,14 +84,23 @@ export default function ProjectPage() {
   const [uploading, setUploading] = useState(false);
   const [encartBusy, setEncartBusy] = useState<string | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
+  const [standardId, setStandardId] = useState<string | null>(null);
+  const [standardName, setStandardName] = useState("");
+  const [officialNorm, setOfficialNorm] = useState<OfficialNorm | null>(null);
+  const [normBusy, setNormBusy] = useState(false);
   const globalInputRef = useRef<HTMLInputElement>(null);
   const encartInputRef = useRef<HTMLInputElement>(null);
+  const normInputRef = useRef<HTMLInputElement>(null);
   const encartTargetRef = useRef<Encart | null>(null);
 
   const loadData = useCallback(async () => {
     if (!projectId) return;
     const [{ data: project }, { data: requirements }, { data: docs }] = await Promise.all([
-      supabase.from("projects").select("name").eq("id", projectId).single(),
+      supabase
+        .from("projects")
+        .select("name, project_standards(standard_versions(standard_id, standards(name)))")
+        .eq("id", projectId)
+        .single(),
       supabase
         .from("document_requirements")
         .select(
@@ -96,6 +112,23 @@ export default function ProjectPage() {
     const loadedEncarts = (requirements as unknown as Encart[]) ?? [];
     setProjectName(project?.name ?? "");
     setEncarts(loadedEncarts);
+
+    // Norme officielle déposée (privée à l'organisation)
+    const pinnedVersion = (
+      project as unknown as {
+        project_standards?: { standard_versions: { standard_id: string; standards: { name: string } | null } | null }[];
+      } | null
+    )?.project_standards?.[0]?.standard_versions;
+    if (pinnedVersion?.standard_id) {
+      setStandardId(pinnedVersion.standard_id);
+      setStandardName(pinnedVersion.standards?.name ?? "");
+      const { data: norm } = await supabase
+        .from("official_standard_documents")
+        .select("id, title, storage_path, created_at")
+        .eq("standard_id", pinnedVersion.standard_id)
+        .maybeSingle();
+      setOfficialNorm((norm as OfficialNorm) ?? null);
+    }
 
     const attachedIds = new Set(loadedEncarts.map((e) => e.document_id).filter(Boolean));
     // Les documents sources déposés pour une extraction (Cas 2) ne sont pas des
@@ -197,6 +230,43 @@ export default function ProjectPage() {
     }
     await loadData();
     setUploading(false);
+  }
+
+  // --- Norme officielle : dépôt privé à l'organisation (texte protégé) ---
+  async function handleNormUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !standardId || !profile?.organization_id || !session) return;
+    setNormBusy(true);
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `${profile.organization_id}/normes/${standardId}_${Date.now()}_${safeName}`;
+      const { error: uploadError } = await supabase.storage
+        .from("documents")
+        .upload(path, file, { contentType: file.type || undefined });
+      if (uploadError) throw new Error(uploadError.message);
+
+      const previousPath = officialNorm?.storage_path;
+      const { error: upsertError } = await supabase.from("official_standard_documents").upsert(
+        {
+          organization_id: profile.organization_id,
+          standard_id: standardId,
+          title: file.name,
+          storage_path: path,
+          uploaded_by: session.user.id,
+        },
+        { onConflict: "organization_id,standard_id" }
+      );
+      if (upsertError) throw new Error(upsertError.message);
+      if (previousPath) await supabase.storage.from("documents").remove([previousPath]);
+      await loadData();
+    } catch (err) {
+      pushMessage(
+        `Le dépôt de la norme officielle a échoué : ${err instanceof Error ? err.message : "erreur"}.`
+      );
+    } finally {
+      setNormBusy(false);
+    }
   }
 
   // --- Dépôt direct dans un encart précis (pas de classification nécessaire) ---
@@ -311,6 +381,13 @@ export default function ProjectPage() {
           </div>
           <button
             className="secondary"
+            onClick={() => navigate(`/projets/${projectId}/chat`)}
+            title="Posez vos questions : réponses sourcées sur votre norme et votre dossier"
+          >
+            Assistant IA
+          </button>
+          <button
+            className="secondary"
             onClick={() => navigate(`/projets/${projectId}/tableau-de-bord`)}
             title="Complétion, score, écarts et historique du dossier"
           >
@@ -358,6 +435,34 @@ export default function ProjectPage() {
           </ul>
         )}
       </div>
+
+      {standardId && (
+        <div className="card official-norm">
+          <div className="encart-header">
+            <h2>Votre exemplaire officiel de la norme</h2>
+            {officialNorm && <span className="badge badge-valide">Déposé</span>}
+          </div>
+          <p className="encart-description">
+            {officialNorm
+              ? `« ${officialNorm.title} » est déposé. L'assistant IA et les audits s'y réfèrent en priorité (clause et page exactes). Il reste strictement privé à votre organisation.`
+              : `Si vous possédez le texte officiel de ${standardName || "la norme"} (acheté auprès de l'AFNOR ou d'ISO), déposez-le : l'assistant IA s'y référera en priorité, avec la clause et la page exactes. Il reste strictement privé à votre organisation et n'est jamais partagé. En le déposant, vous confirmez disposer des droits d'utilisation.`}
+          </p>
+          <input ref={normInputRef} type="file" accept=".pdf" hidden onChange={handleNormUpload} />
+          <div className="encart-actions" style={{ marginLeft: 0 }}>
+            <button
+              className="secondary"
+              onClick={() => normInputRef.current?.click()}
+              disabled={normBusy}
+            >
+              {normBusy
+                ? "Téléversement…"
+                : officialNorm
+                  ? "Remplacer le fichier"
+                  : "Déposer la norme officielle (PDF)"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {unattachedDocs.length > 0 && (
         <div className="card unattached">

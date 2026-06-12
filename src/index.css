@@ -780,6 +780,19 @@ label {
   margin: 10px 0 14px;
 }
 
+/* ---------- Chat IA + norme officielle ---------- */
+
+.chat-sources {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin: 4px 0 0;
+}
+
+.official-norm {
+  background: var(--brand-25);
+  border-color: var(--brand-100);
+}
+
 /* ---------- Tableau de bord projet ---------- */
 
 .stat-grid {
