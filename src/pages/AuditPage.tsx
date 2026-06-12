@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { apiPost } from "../lib/api";
 
@@ -51,6 +51,7 @@ const PROGRESS_LABELS: Record<string, string> = {
 
 export default function AuditPage() {
   const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
   const [projectName, setProjectName] = useState("");
   const [audit, setAudit] = useState<GlobalAudit | null>(null);
   const [findings, setFindings] = useState<Finding[]>([]);
@@ -330,7 +331,16 @@ export default function AuditPage() {
               Cet audit est une aide à la préparation de votre certification. Il ne remplace pas
               l'audit de certification, qui ne peut être réalisé que par un organisme accrédité.
             </p>
-            <button onClick={launchAudit}>Relancer l'audit</button>
+            <div className="encart-actions" style={{ marginLeft: 0 }}>
+              {openNc === 0 && (
+                <button onClick={() => navigate(`/projets/${projectId}/dossier`)}>
+                  Constituer le dossier final
+                </button>
+              )}
+              <button className={openNc === 0 ? "secondary" : ""} onClick={launchAudit}>
+                Relancer l'audit
+              </button>
+            </div>
           </div>
         </>
       )}

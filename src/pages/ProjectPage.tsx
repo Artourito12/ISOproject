@@ -310,6 +310,13 @@ export default function ProjectPage() {
           >
             Audit global
           </button>
+          <button
+            className="secondary"
+            onClick={() => navigate(`/projets/${projectId}/dossier`)}
+            title="Assemblez vos documents validés en un dossier prêt à transmettre"
+          >
+            Dossier final
+          </button>
         </div>
       </header>
 
