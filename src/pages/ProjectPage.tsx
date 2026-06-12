@@ -296,11 +296,20 @@ export default function ProjectPage() {
           </Link>
           <h1>{projectName}</h1>
         </div>
-        <div className="completion">
-          <strong>
-            {done}/{total}
-          </strong>{" "}
-          documents validés
+        <div className="header-actions">
+          <div className="completion">
+            <strong>
+              {done}/{total}
+            </strong>{" "}
+            documents validés
+          </div>
+          <button
+            className="secondary"
+            onClick={() => navigate(`/projets/${projectId}/audit`)}
+            title="Passez chaque exigence de la norme en revue"
+          >
+            Audit global
+          </button>
         </div>
       </header>
 

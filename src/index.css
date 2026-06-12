@@ -629,6 +629,157 @@ label {
   margin: 6px 0;
 }
 
+/* ---------- Audit global ---------- */
+
+.score-hero {
+  background: var(--brand-50);
+  color: var(--brand-700);
+  border-radius: 12px;
+  padding: 14px 22px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.score-hero strong {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.score-hero span {
+  display: block;
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.progress-track {
+  background: var(--gray-100);
+  border-radius: 9999px;
+  height: 8px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: var(--brand-500);
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.6s ease;
+}
+
+.chapter-scores {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chapter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.chapter-label {
+  width: 90px;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.chapter-track {
+  flex: 1;
+  background: var(--gray-100);
+  border-radius: 9999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.chapter-fill {
+  height: 100%;
+  border-radius: 9999px;
+}
+
+.fill-ok {
+  background: var(--success-600);
+}
+
+.fill-warn {
+  background: var(--warning-600);
+}
+
+.fill-bad {
+  background: var(--error-600);
+}
+
+.chapter-value {
+  width: 32px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.audit-summary {
+  font-size: 14px;
+  color: var(--gray-700);
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+/* Constats : rectangle entier teinté selon le verdict */
+
+.finding {
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  padding: 14px 16px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.finding p {
+  margin: 6px 0;
+}
+
+.finding-nc_majeure {
+  background: var(--error-50);
+  border-color: var(--error-200);
+}
+
+.finding-nc_mineure {
+  background: var(--warning-50);
+  border-color: var(--warning-200);
+}
+
+.finding-opportunite {
+  background: var(--info-50);
+  border-color: var(--gray-200);
+}
+
+.finding-conforme {
+  background: var(--success-50);
+  border-color: var(--success-200);
+}
+
+.finding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.finding-doc {
+  color: var(--gray-500);
+  font-size: 12px;
+}
+
+.finding-reco {
+  color: var(--gray-700);
+}
+
+.audit-disclaimer {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin: 10px 0 14px;
+}
+
 /* ---------- Documents non rattachés ---------- */
 
 .unattached-row {
