@@ -780,6 +780,27 @@ label {
   margin: 10px 0 14px;
 }
 
+/* ---------- Zone de danger ---------- */
+
+.danger-zone {
+  border-color: var(--error-200);
+}
+
+button.danger {
+  background: #fff;
+  color: var(--error-700);
+  box-shadow: inset 0 0 0 1px var(--error-200), var(--shadow-xs);
+}
+
+button.danger:hover:not(:disabled) {
+  background: var(--error-50);
+}
+
+button.danger:disabled {
+  color: var(--gray-400);
+  background: var(--gray-100);
+}
+
 /* ---------- Cycle de vie documentaire ---------- */
 
 .encart-badges {

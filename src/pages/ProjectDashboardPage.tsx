@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { apiPost } from "../lib/api";
+import { useAuth } from "../contexts/AuthContext";
 
 interface RequirementRow {
   status: string;
@@ -59,6 +61,9 @@ const STATUS_LABELS: Record<string, string> = {
 export default function ProjectDashboardPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [projectName, setProjectName] = useState("");
   const [projectStatus, setProjectStatus] = useState("");
   const [requirements, setRequirements] = useState<RequirementRow[]>([]);
@@ -371,6 +376,42 @@ export default function ProjectDashboardPage() {
           </p>
         )}
       </div>
+
+      {/* --- Zone de danger (RGPD) --- */}
+      {profile?.role === "admin" && (
+        <div className="card danger-zone">
+          <h2>Suppression du projet</h2>
+          <p className="encart-description">
+            Supprime définitivement le projet, tous ses documents (déposés et générés), ses audits
+            et ses dossiers constitués. Cette action est irréversible.
+          </p>
+          {deleteError && <p className="error">{deleteError}</p>}
+          <button
+            className="danger"
+            disabled={deleting}
+            onClick={async () => {
+              const typed = window.prompt(
+                `Pour confirmer la suppression définitive, saisissez le nom du projet : « ${projectName} »`
+              );
+              if (typed !== projectName) {
+                if (typed !== null) setDeleteError("Le nom saisi ne correspond pas : suppression annulée.");
+                return;
+              }
+              setDeleting(true);
+              setDeleteError(null);
+              try {
+                await apiPost("/api/projects/delete", { projectId });
+                navigate("/", { replace: true });
+              } catch (err) {
+                setDeleteError(err instanceof Error ? err.message : "La suppression a échoué");
+                setDeleting(false);
+              }
+            }}
+          >
+            {deleting ? "Suppression…" : "Supprimer définitivement ce projet"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
