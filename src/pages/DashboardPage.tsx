@@ -214,6 +214,9 @@ export default function DashboardPage() {
               Administration
             </Link>
           )}
+          <Link to="/equipe" className="back-link">
+            Équipe
+          </Link>
           <button onClick={() => setShowForm(!showForm)}>
             {showForm ? "Annuler" : "Nouveau projet"}
           </button>

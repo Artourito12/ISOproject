@@ -38,6 +38,7 @@ export default async function handler(req, res) {
     organization_id: org.id,
     role: "admin",
     full_name: fullName || null,
+    email: userData.user.email || null,
   });
   if (profileError) return res.status(500).json({ error: profileError.message });
 
