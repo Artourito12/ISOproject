@@ -8,6 +8,7 @@ import AssistantPage from "./pages/AssistantPage";
 import ExtractionPage from "./pages/ExtractionPage";
 import AuditPage from "./pages/AuditPage";
 import DossierPage from "./pages/DossierPage";
+import ProjectDashboardPage from "./pages/ProjectDashboardPage";
 import AdminPage from "./pages/AdminPage";
 
 function AppRoutes() {
@@ -25,6 +26,7 @@ function AppRoutes() {
       <Route path="/projets/:projectId/encarts/:requirementId/extraction" element={<ExtractionPage />} />
       <Route path="/projets/:projectId/audit" element={<AuditPage />} />
       <Route path="/projets/:projectId/dossier" element={<DossierPage />} />
+      <Route path="/projets/:projectId/tableau-de-bord" element={<ProjectDashboardPage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

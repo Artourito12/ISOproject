@@ -311,6 +311,13 @@ export default function ProjectPage() {
           </div>
           <button
             className="secondary"
+            onClick={() => navigate(`/projets/${projectId}/tableau-de-bord`)}
+            title="Complétion, score, écarts et historique du dossier"
+          >
+            Tableau de bord
+          </button>
+          <button
+            className="secondary"
             onClick={() => navigate(`/projets/${projectId}/audit`)}
             title="Passez chaque exigence de la norme en revue"
           >

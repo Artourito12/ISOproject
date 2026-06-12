@@ -23,6 +23,12 @@ const STATUS_LABELS: Record<string, string> = {
   finalise: "Finalisé",
 };
 
+interface ProjectStats {
+  valides: number;
+  total: number;
+  score: number | null;
+}
+
 interface GenerateStandardResult {
   existing: boolean;
   code: string;
@@ -35,6 +41,7 @@ interface GenerateStandardResult {
 export default function DashboardPage() {
   const { isPlatformAdmin } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [stats, setStats] = useState<Record<string, ProjectStats>>({});
   const [standards, setStandards] = useState<Standard[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
@@ -47,13 +54,32 @@ export default function DashboardPage() {
   const [generateNotice, setGenerateNotice] = useState<string | null>(null);
 
   async function loadData() {
-    const [{ data: projectsData }, { data: standardsData }] = await Promise.all([
-      supabase.from("projects").select("id, name, status, created_at").order("created_at", { ascending: false }),
-      supabase.from("standards").select("code, name").eq("is_active", true),
-    ]);
+    const [{ data: projectsData }, { data: standardsData }, { data: reqRows }, { data: auditRows }] =
+      await Promise.all([
+        supabase.from("projects").select("id, name, status, created_at").order("created_at", { ascending: false }),
+        supabase.from("standards").select("code, name").eq("is_active", true),
+        supabase.from("document_requirements").select("project_id, status"),
+        supabase
+          .from("global_audits")
+          .select("project_id, compliance_score, completed_at")
+          .eq("status", "termine")
+          .order("completed_at", { ascending: false }),
+      ]);
     setProjects(projectsData ?? []);
     setStandards(standardsData ?? []);
     if (standardsData?.length && !standardCode) setStandardCode(standardsData[0].code);
+
+    const statsMap: Record<string, ProjectStats> = {};
+    for (const row of reqRows ?? []) {
+      const s = (statsMap[row.project_id] ??= { valides: 0, total: 0, score: null });
+      s.total += 1;
+      if (row.status === "valide") s.valides += 1;
+    }
+    for (const row of auditRows ?? []) {
+      const s = statsMap[row.project_id];
+      if (s && s.score === null) s.score = row.compliance_score; // le plus récent gagne
+    }
+    setStats(statsMap);
   }
 
   useEffect(() => {
@@ -258,12 +284,23 @@ export default function DashboardPage() {
       )}
 
       <div className="project-list">
-        {projects.map((p) => (
-          <Link to={`/projets/${p.id}`} key={p.id} className="card project-card">
-            <h2>{p.name}</h2>
-            <span className={`badge badge-${p.status}`}>{STATUS_LABELS[p.status] ?? p.status}</span>
-          </Link>
-        ))}
+        {projects.map((p) => {
+          const s = stats[p.id];
+          return (
+            <Link to={`/projets/${p.id}`} key={p.id} className="card project-card">
+              <div>
+                <h2>{p.name}</h2>
+                {s && (
+                  <p className="project-stats">
+                    {s.valides}/{s.total} documents validés
+                    {s.score !== null && ` · score de conformité ${s.score}/100`}
+                  </p>
+                )}
+              </div>
+              <span className={`badge badge-${p.status}`}>{STATUS_LABELS[p.status] ?? p.status}</span>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
