@@ -780,6 +780,33 @@ label {
   margin: 10px 0 14px;
 }
 
+/* ---------- Cycle de vie documentaire ---------- */
+
+.encart-badges {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.badge-a-revoir {
+  background: var(--warning-50);
+  color: var(--warning-700);
+  border: 1px solid var(--warning-200);
+}
+
+.review-warning {
+  background: var(--warning-50);
+  border: 1px solid var(--warning-200);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.review-warning p {
+  margin: 0 0 10px;
+}
+
 /* ---------- Chat IA + norme officielle ---------- */
 
 .chat-sources {

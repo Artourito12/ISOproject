@@ -4,7 +4,20 @@ import { supabase } from "../lib/supabase";
 
 interface RequirementRow {
   status: string;
-  required_documents: { is_mandatory: boolean } | null;
+  documents: { created_at: string } | null;
+  required_documents: {
+    is_mandatory: boolean;
+    title: string;
+    validation_rules: { max_review_age_months?: number } | null;
+  } | null;
+}
+
+function isStale(row: RequirementRow): boolean {
+  const months = row.required_documents?.validation_rules?.max_review_age_months;
+  if (!months || row.status !== "valide" || !row.documents) return false;
+  const limit = new Date(row.documents.created_at);
+  limit.setMonth(limit.getMonth() + months);
+  return limit < new Date();
 }
 
 interface GlobalAudit {
@@ -62,7 +75,7 @@ export default function ProjectDashboardPage() {
         supabase.from("projects").select("name, status").eq("id", projectId).single(),
         supabase
           .from("document_requirements")
-          .select("status, required_documents(is_mandatory)")
+          .select("status, documents(created_at), required_documents(is_mandatory, title, validation_rules)")
           .eq("project_id", projectId),
         supabase
           .from("global_audits")
@@ -296,6 +309,31 @@ export default function ProjectDashboardPage() {
               </div>
             </>
           )}
+        </div>
+      )}
+
+      {/* --- Cycle de vie : documents à revoir --- */}
+      {requirements.some(isStale) && (
+        <div className="card">
+          <h2>Documents à revoir ({requirements.filter(isStale).length})</h2>
+          <p className="encart-description">
+            Ces documents validés dépassent l'âge maximal de revue prévu par le référentiel.
+            Déposez une version revue depuis l'encart concerné pour maintenir la conformité.
+          </p>
+          <ul className="upload-messages">
+            {requirements.filter(isStale).map((r, i) => (
+              <li key={i}>
+                {r.required_documents?.title} — fourni le{" "}
+                {r.documents ? formatDate(r.documents.created_at) : "—"} (revue exigée tous les{" "}
+                {r.required_documents?.validation_rules?.max_review_age_months} mois)
+              </li>
+            ))}
+          </ul>
+          <div className="encart-actions" style={{ marginLeft: 0 }}>
+            <button className="secondary" onClick={() => navigate(`/projets/${projectId}`)}>
+              Mettre à jour les documents
+            </button>
+          </div>
         </div>
       )}
 

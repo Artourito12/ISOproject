@@ -51,18 +51,41 @@ export default async function handler(req, res) {
   }
 
   const toRelance = eligible.filter((a) => ncByAudit.has(a.id));
-  if (toRelance.length === 0) return res.status(200).json({ sent: 0, reason: "aucune NC ouverte" });
+
+  // Cycle de vie : documents validés dépassant l'âge maximal de revue du référentiel
+  const { data: staleRows } = await supabaseAdmin
+    .from("document_requirements")
+    .select(
+      "project_id, organization_id, documents(created_at), required_documents(title, validation_rules)"
+    )
+    .eq("status", "valide")
+    .not("document_id", "is", null);
+  const staleByOrg = new Map();
+  for (const row of staleRows || []) {
+    const months = row.required_documents?.validation_rules?.max_review_age_months;
+    if (!months || !row.documents) continue;
+    const limit = new Date(row.documents.created_at);
+    limit.setMonth(limit.getMonth() + months);
+    if (limit >= new Date()) continue;
+    if (!staleByOrg.has(row.organization_id)) staleByOrg.set(row.organization_id, []);
+    staleByOrg.get(row.organization_id).push(row);
+  }
+
+  if (toRelance.length === 0 && staleByOrg.size === 0) {
+    return res.status(200).json({ sent: 0, reason: "aucune NC ouverte ni document à revoir" });
+  }
 
   // Noms de projets + admins de chaque organisation
+  const projectIds = [
+    ...new Set([...toRelance.map((a) => a.project_id), ...(staleRows || []).map((r) => r.project_id)]),
+  ];
+  const orgIds = [...new Set([...toRelance.map((a) => a.organization_id), ...staleByOrg.keys()])];
   const [{ data: projects }, { data: admins }] = await Promise.all([
-    supabaseAdmin
-      .from("projects")
-      .select("id, name, organization_id")
-      .in("id", toRelance.map((a) => a.project_id)),
+    supabaseAdmin.from("projects").select("id, name, organization_id").in("id", projectIds),
     supabaseAdmin
       .from("profiles")
       .select("organization_id, email, full_name")
-      .in("organization_id", [...new Set(toRelance.map((a) => a.organization_id))])
+      .in("organization_id", orgIds)
       .eq("role", "admin")
       .not("email", "is", null),
   ]);
@@ -73,6 +96,9 @@ export default async function handler(req, res) {
   for (const audit of toRelance) {
     if (!byOrg.has(audit.organization_id)) byOrg.set(audit.organization_id, []);
     byOrg.get(audit.organization_id).push(audit);
+  }
+  for (const orgId of staleByOrg.keys()) {
+    if (!byOrg.has(orgId)) byOrg.set(orgId, []);
   }
 
   let sent = 0;
@@ -98,19 +124,38 @@ export default async function handler(req, res) {
       })
       .join("");
 
+    const staleItems = (staleByOrg.get(orgId) || [])
+      .map((row) => {
+        const project = projectById.get(row.project_id);
+        return (
+          `<li style="margin-bottom:4px;">${escapeHtml(row.required_documents?.title || "Document")}` +
+          ` (projet ${escapeHtml(project?.name || "")}) — revue exigée tous les ` +
+          `${row.required_documents.validation_rules.max_review_age_months} mois, ` +
+          `<a href="${APP_URL}/projets/${row.project_id}" style="color:#1e40af;">mettre à jour</a></li>`
+        );
+      })
+      .join("");
+
     const html =
       `<div style="font-family:'IBM Plex Sans',system-ui,sans-serif;color:#344054;font-size:14px;max-width:640px;">` +
-      `<h2 style="color:#101828;">Des actions correctives attendent votre attention</h2>` +
-      `<p>Des non-conformités relevées par l'audit global de vos projets de certification ` +
-      `sont toujours ouvertes. Les corriger améliore votre score de conformité avant la ` +
-      `constitution du dossier final.</p>` +
-      `<table style="border-collapse:collapse;width:100%;font-size:13px;">` +
-      `<tr><th align="left" style="padding:8px 12px;color:#667085;">Projet</th>` +
-      `<th align="left" style="padding:8px 12px;color:#667085;">Écarts ouverts</th>` +
-      `<th align="left" style="padding:8px 12px;color:#667085;">Audité</th><th></th></tr>` +
-      rows +
-      `</table>` +
-      `<p style="margin-top:16px;">Une fois les documents corrigés, relancez l'audit global pour mettre à jour votre score.</p>` +
+      `<h2 style="color:#101828;">Votre dossier de certification demande votre attention</h2>` +
+      (rows
+        ? `<p>Des non-conformités relevées par l'audit global de vos projets ` +
+          `sont toujours ouvertes. Les corriger améliore votre score de conformité avant la ` +
+          `constitution du dossier final.</p>` +
+          `<table style="border-collapse:collapse;width:100%;font-size:13px;">` +
+          `<tr><th align="left" style="padding:8px 12px;color:#667085;">Projet</th>` +
+          `<th align="left" style="padding:8px 12px;color:#667085;">Écarts ouverts</th>` +
+          `<th align="left" style="padding:8px 12px;color:#667085;">Audité</th><th></th></tr>` +
+          rows +
+          `</table>`
+        : "") +
+      (staleItems
+        ? `<h3 style="color:#101828;margin-top:18px;">Documents à revoir</h3>` +
+          `<p>Ces documents validés dépassent l'âge maximal de revue prévu par le référentiel :</p>` +
+          `<ul style="font-size:13px;padding-left:18px;">${staleItems}</ul>`
+        : "") +
+      `<p style="margin-top:16px;">Une fois les documents corrigés ou mis à jour, relancez l'audit global pour mettre à jour votre score.</p>` +
       `<p style="color:#98a2b3;font-size:12px;">Vous recevez cet email car vous êtes administrateur de votre organisation sur ISOproject. ` +
       `Cet outil est une aide à la préparation : la certification ne peut être délivrée que par un organisme accrédité.</p>` +
       `</div>`;

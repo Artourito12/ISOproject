@@ -10,7 +10,7 @@ interface Encart {
   status: string;
   classification_confidence: number | null;
   document_id: string | null;
-  documents: { title: string } | null;
+  documents: { title: string; created_at: string } | null;
   required_documents: {
     key: string;
     title: string;
@@ -18,7 +18,18 @@ interface Encart {
     is_mandatory: boolean;
     generation_case: number;
     evidence_type: string;
+    validation_rules: { max_review_age_months?: number } | null;
   };
+}
+
+// Cycle de vie : un document validé est « à revoir » quand il dépasse l'âge
+// maximal de revue défini par le référentiel (max_review_age_months).
+export function needsReview(encart: Encart): boolean {
+  const months = encart.required_documents.validation_rules?.max_review_age_months;
+  if (!months || encart.status !== "valide" || !encart.documents) return false;
+  const limit = new Date(encart.documents.created_at);
+  limit.setMonth(limit.getMonth() + months);
+  return limit < new Date();
 }
 
 interface ProjectDocument {
@@ -104,7 +115,7 @@ export default function ProjectPage() {
       supabase
         .from("document_requirements")
         .select(
-          "id, status, classification_confidence, document_id, documents(title), required_documents(key, title, description, is_mandatory, generation_case, evidence_type)"
+          "id, status, classification_confidence, document_id, documents(title, created_at), required_documents(key, title, description, is_mandatory, generation_case, evidence_type, validation_rules)"
         )
         .eq("project_id", projectId),
       supabase.from("documents").select("id, title").eq("project_id", projectId),
@@ -509,10 +520,27 @@ export default function ProjectPage() {
             <div key={encart.id} className={`card encart encart-${encart.status}`}>
               <div className="encart-header">
                 <h2>{doc.title}</h2>
-                <span className={`badge badge-${encart.status}`}>
-                  {STATUS_LABELS[encart.status] ?? encart.status}
-                </span>
+                <div className="encart-badges">
+                  {needsReview(encart) && <span className="badge badge-a-revoir">À revoir</span>}
+                  <span className={`badge badge-${encart.status}`}>
+                    {STATUS_LABELS[encart.status] ?? encart.status}
+                  </span>
+                </div>
               </div>
+              {needsReview(encart) && (
+                <div className="review-warning">
+                  <p>
+                    Ce document dépasse l'âge maximal de revue prévu par le référentiel
+                    ({doc.validation_rules?.max_review_age_months} mois) : déposez une version
+                    revue et à jour pour maintenir la conformité de votre dossier.
+                  </p>
+                  <div className="encart-actions" style={{ marginLeft: 0 }}>
+                    <button onClick={() => openEncartUpload(encart)} disabled={busy || uploading}>
+                      Déposer une version à jour
+                    </button>
+                  </div>
+                </div>
+              )}
               <p className="encart-description">{doc.description}</p>
 
               {encart.documents && !awaitingConfirmation && (
