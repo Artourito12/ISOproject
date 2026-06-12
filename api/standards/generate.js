@@ -5,10 +5,13 @@
 //   3. build.js     : structuration + insertion du référentiel     (~4-7 min)
 // Le client suit aussi standard_requests.status en filet de sécurité.
 import { supabaseAdmin } from "../_lib/supabaseAdmin.js";
-import { getUserFromRequest } from "../_lib/auth.js";
+import { getUserFromRequest, isPlatformAdmin } from "../_lib/auth.js";
 import { callStructured } from "../_lib/claude.js";
 
 export const config = { maxDuration: 300 };
+
+// Quota anti-abus : la préparation d'une norme coûte ~10 min de pipeline IA.
+const MAX_REQUESTS_PER_DAY = 3;
 
 const IDENTIFY_SCHEMA = {
   type: "object",
@@ -38,6 +41,22 @@ export default async function handler(req, res) {
   const { query } = req.body || {};
   if (!query || String(query).trim().length < 3) {
     return res.status(400).json({ error: "Précisez la norme recherchée (ex. ISO 13485)" });
+  }
+
+  // Quota par organisation sur 24h glissantes (les super admins n'y sont pas soumis)
+  if (!(await isPlatformAdmin(profile.id))) {
+    const { count } = await supabaseAdmin
+      .from("standard_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("organization_id", profile.organization_id)
+      .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+    if ((count ?? 0) >= MAX_REQUESTS_PER_DAY) {
+      return res.status(429).json({
+        error:
+          `Votre organisation a déjà demandé la préparation de ${MAX_REQUESTS_PER_DAY} normes ces dernières 24 heures. ` +
+          `Réessayez demain, ou contactez-nous si vous avez un besoin particulier.`,
+      });
+    }
   }
 
   let id;
