@@ -98,7 +98,13 @@ export default function ProjectPage() {
     setEncarts(loadedEncarts);
 
     const attachedIds = new Set(loadedEncarts.map((e) => e.document_id).filter(Boolean));
-    setUnattachedDocs((docs ?? []).filter((d) => !attachedIds.has(d.id)));
+    // Les documents sources déposés pour une extraction (Cas 2) ne sont pas des
+    // pièces du dossier : on ne les propose pas au rattachement manuel.
+    const { data: sourceRows } = await supabase.from("extraction_sources").select("document_id");
+    const sourceIds = new Set((sourceRows ?? []).map((s) => s.document_id));
+    setUnattachedDocs(
+      (docs ?? []).filter((d) => !attachedIds.has(d.id) && !sourceIds.has(d.id))
+    );
 
     // Dernier audit ciblé par document (le plus récent gagne)
     const docIds = (docs ?? []).map((d) => d.id);
@@ -500,7 +506,12 @@ export default function ProjectPage() {
                     </button>
                   )}
                   {doc.generation_case === 2 && !encart.document_id && (
-                    <button disabled title="Bientôt disponible">
+                    <button
+                      onClick={() =>
+                        navigate(`/projets/${projectId}/encarts/${encart.id}/extraction`)
+                      }
+                      disabled={busy || uploading}
+                    >
                       Créer à partir de vos documents
                     </button>
                   )}

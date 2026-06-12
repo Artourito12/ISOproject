@@ -780,6 +780,40 @@ label {
   margin: 10px 0 14px;
 }
 
+/* ---------- Extraction (Cas 2) ---------- */
+
+.extraction-source {
+  border-top: 1px solid var(--gray-200);
+  padding-top: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.extraction-item {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 8px;
+}
+
+.extraction-item p {
+  margin: 0;
+}
+
+.extraction-topic {
+  color: var(--gray-900);
+}
+
+.extraction-excerpt {
+  color: var(--gray-500);
+  font-style: italic;
+  font-size: 12px;
+  margin-top: 4px;
+  border-left: 3px solid var(--brand-300);
+  padding-left: 8px;
+}
+
 /* ---------- Documents non rattachés ---------- */
 
 .unattached-row {

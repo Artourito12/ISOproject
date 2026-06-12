@@ -1,5 +1,6 @@
-// Génération du document (Cas 1) après l'entretien.
-// Règle d'or appliquée PAR LE CODE : refus si un champ obligatoire manque.
+// Génération du document après collecte (Cas 1 : entretien ; Cas 2 : extraction).
+// Règle d'or appliquée PAR LE CODE : refus si un champ obligatoire manque (Cas 1)
+// ou si une information manquante identifiée n'a pas reçu de réponse (Cas 2).
 import { supabaseAdmin } from "../_lib/supabaseAdmin.js";
 import { getUserFromRequest } from "../_lib/auth.js";
 import { anthropic, MODEL } from "../_lib/claude.js";
@@ -35,12 +36,53 @@ export default async function handler(req, res) {
   const requiredDoc = requirement.required_documents;
 
   // --- Règle d'or : aucun document à trous ---
-  const missing = missingRequiredFields(requiredDoc.field_schema || {}, session.collected_fields);
-  if (missing.length > 0) {
-    return res.status(400).json({
-      error: "Des informations obligatoires manquent encore : la génération est bloquée.",
-      missing: missing.map((name) => requiredDoc.field_schema?.[name]?.label || name),
-    });
+  let sourceData; // ce qui sera fourni au modèle comme seule source autorisée
+  if (session.generation_case === 2) {
+    // Cas 2 : chaque manque identifié à l'extraction doit avoir reçu une réponse
+    const missingTopics = session.collected_fields?.missing || [];
+    const responses = session.collected_fields?.responses || {};
+    const unanswered = missingTopics.filter((m) => !String(responses[m.topic] || "").trim());
+    if (unanswered.length > 0) {
+      return res.status(400).json({
+        error: "Des informations manquantes n'ont pas encore de réponse : la génération est bloquée.",
+        missing: unanswered.map((m) => m.topic),
+      });
+    }
+
+    const { data: sources } = await supabaseAdmin
+      .from("extraction_sources")
+      .select("extracted_data, documents(title)")
+      .eq("generation_session_id", session.id);
+    if (!sources || sources.length === 0) {
+      return res.status(400).json({ error: "Aucune donnée extraite : lancez d'abord l'extraction." });
+    }
+
+    sourceData =
+      `Données extraites des documents sources (chaque donnée cite son document d'origine) :\n` +
+      sources
+        .flatMap((s) =>
+          (s.extracted_data?.items || []).map(
+            (item) => `- [Source : ${s.documents?.title}] ${item.topic} : ${item.value}`
+          )
+        )
+        .join("\n") +
+      (Object.keys(responses).length
+        ? `\n\nCompléments fournis directement par l'utilisateur :\n` +
+          Object.entries(responses)
+            .map(([topic, value]) => `- [Fourni par l'utilisateur] ${topic} : ${value}`)
+            .join("\n")
+        : "");
+  } else {
+    const missing = missingRequiredFields(requiredDoc.field_schema || {}, session.collected_fields);
+    if (missing.length > 0) {
+      return res.status(400).json({
+        error: "Des informations obligatoires manquent encore : la génération est bloquée.",
+        missing: missing.map((name) => requiredDoc.field_schema?.[name]?.label || name),
+      });
+    }
+    sourceData =
+      `Données collectées lors de l'entretien (seule source autorisée) :\n` +
+      JSON.stringify(session.collected_fields, null, 2);
   }
 
   // --- Exigences des clauses couvertes (injectées depuis la base, jamais de mémoire) ---
@@ -77,8 +119,7 @@ export default async function handler(req, res) {
     `Description : ${requiredDoc.description}\n\n` +
     `Exigences normatives couvertes :\n${clauses || "(non précisées)"}\n\n` +
     `Consignes de structure : ${requiredDoc.generation_template || "structure professionnelle adaptée"}\n\n` +
-    `Données collectées lors de l'entretien (seule source autorisée) :\n` +
-    JSON.stringify(session.collected_fields, null, 2);
+    sourceData;
 
   let markdown;
   try {
