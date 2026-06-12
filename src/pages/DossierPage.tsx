@@ -157,8 +157,9 @@ export default function DossierPage() {
         <h2>Constitution du dossier</h2>
         <p className="encart-description">
           Le dossier final assemble tous vos documents validés, classés par chapitre de la norme,
-          accompagnés d'un sommaire et de la table de correspondance exigence ↔ preuve, dans une
-          archive prête à transmettre à votre organisme certificateur.
+          accompagnés d'un sommaire, de la table de correspondance exigence ↔ preuve et d'un PDF
+          unique indexé regroupant tout le dossier, dans une archive prête à transmettre à votre
+          organisme certificateur.
         </p>
 
         {!ready && (

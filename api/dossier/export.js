@@ -5,6 +5,7 @@
 // déterministe à partir du référentiel épinglé et des encarts.
 import JSZip from "jszip";
 import { jsPDF } from "jspdf";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 import { supabaseAdmin } from "../_lib/supabaseAdmin.js";
 import { getUserFromRequest } from "../_lib/auth.js";
 
@@ -167,6 +168,7 @@ export default async function handler(req, res) {
   const zip = new JSZip();
   const usedPaths = new Set();
   const filePathByDocumentId = new Map();
+  const bufferByDocumentId = new Map(); // réutilisé pour le PDF unique
 
   for (const item of included) {
     const { data: file, error: dlError } = await supabaseAdmin.storage
@@ -191,6 +193,7 @@ export default async function handler(req, res) {
     }
     usedPaths.add(path);
     filePathByDocumentId.set(item.document.id, path);
+    bufferByDocumentId.set(item.document.id, buffer);
     zip.file(path, buffer);
   }
 
@@ -260,7 +263,12 @@ export default async function handler(req, res) {
       { size: 10, gapAfter: 2 }
     );
   }
-  sommaire.write(DISCLAIMER, { size: 9, style: "italic", gapBefore: 18 });
+  sommaire.write(
+    "L'archive contient également dossier_complet.pdf : l'ensemble du dossier en un seul PDF, " +
+      "avec table des matières paginée.",
+    { size: 10, gapBefore: 12 }
+  );
+  sommaire.write(DISCLAIMER, { size: 9, style: "italic", gapBefore: 12 });
   zip.file("sommaire.pdf", sommaire.buffer());
 
   // --- correspondance.pdf : exigence ↔ preuve, clause par clause ---
@@ -287,6 +295,102 @@ export default async function handler(req, res) {
   }
   table.write(DISCLAIMER, { size: 9, style: "italic", gapBefore: 18 });
   zip.file("correspondance.pdf", table.buffer());
+
+  // --- dossier_complet.pdf : le dossier entier en un seul PDF indexé -------
+  // Les PDF déposés sont fusionnés tels quels (pdf-lib) ; les documents texte/
+  // markdown sont composés via jsPDF ; un PDF illisible est remplacé par une
+  // page renvoyant vers l'archive.
+  const sections = [];
+  for (const item of included) {
+    const buffer = bufferByDocumentId.get(item.document.id);
+    let pdfDoc = null;
+    if (item.document.mime_type === "application/pdf") {
+      try {
+        pdfDoc = await PDFDocument.load(buffer, { ignoreEncryption: true });
+      } catch {
+        pdfDoc = null;
+      }
+    }
+    if (!pdfDoc) {
+      const writer = createPdfWriter();
+      writer.write(item.requiredDoc.title, { size: 16, style: "bold", gapAfter: 10 });
+      const body =
+        item.document.mime_type === "application/pdf"
+          ? `Ce document n'a pas pu être intégré au PDF unique. Retrouvez-le dans l'archive : ${
+              filePathByDocumentId.get(item.document.id) || ""
+            }`
+          : buffer.toString("utf8").slice(0, 200000);
+      writer.write(body, { size: 10 });
+      pdfDoc = await PDFDocument.load(writer.buffer());
+    }
+    sections.push({ item, pdfDoc, pageCount: pdfDoc.getPageCount() });
+  }
+
+  // Couverture
+  const cover = createPdfWriter();
+  cover.write("Dossier de préparation à la certification", { size: 20, style: "bold", gapBefore: 120, gapAfter: 4 });
+  cover.write(`${standardName}${standardEdition ? ` — édition ${standardEdition}` : ""}`, { size: 14, gapAfter: 18 });
+  cover.write(`Projet : ${project.name}`, { size: 12 });
+  cover.write(`Dossier constitué le ${exportDate}`, { size: 12 });
+  if (lastAudit?.compliance_score != null) {
+    cover.write(`Score de conformité au dernier audit global : ${lastAudit.compliance_score}/100`, { size: 12 });
+  }
+  cover.write(DISCLAIMER, { size: 9, style: "italic", gapBefore: 40 });
+  const coverDoc = await PDFDocument.load(cover.buffer());
+
+  // Table des matières : un premier rendu mesure son nombre de pages, le second
+  // porte les numéros définitifs (mêmes lignes → même pagination).
+  function renderToc(startPageOf) {
+    const toc = createPdfWriter();
+    toc.write("Table des matières", { size: 16, style: "bold", gapAfter: 10 });
+    let chapter = null;
+    for (const section of sections) {
+      if (section.item.chapter !== chapter) {
+        chapter = section.item.chapter;
+        toc.write(`Chapitre ${chapter} — ${chapterTitleByNumber.get(chapter) || "Autres"}`, {
+          size: 12,
+          style: "bold",
+          gapBefore: 8,
+          gapAfter: 4,
+        });
+      }
+      toc.write(
+        `${section.item.requiredDoc.title} — page ${startPageOf.get(section) ?? 999}`,
+        { size: 10, gapAfter: 2 }
+      );
+    }
+    return toc;
+  }
+  const probeToc = await PDFDocument.load(renderToc(new Map()).buffer());
+  const frontPages = coverDoc.getPageCount() + probeToc.getPageCount();
+  const startPageOf = new Map();
+  let cursor = frontPages + 1;
+  for (const section of sections) {
+    startPageOf.set(section, cursor);
+    cursor += section.pageCount;
+  }
+  const tocDoc = await PDFDocument.load(renderToc(startPageOf).buffer());
+
+  // Assemblage + numérotation de toutes les pages
+  const finalPdf = await PDFDocument.create();
+  const pageFont = await finalPdf.embedFont(StandardFonts.Helvetica);
+  async function appendAll(src) {
+    const pages = await finalPdf.copyPages(src, src.getPageIndices());
+    for (const page of pages) finalPdf.addPage(page);
+  }
+  await appendAll(coverDoc);
+  await appendAll(tocDoc);
+  for (const section of sections) await appendAll(section.pdfDoc);
+  const allPages = finalPdf.getPages();
+  allPages.forEach((page, i) => {
+    page.drawText(`${i + 1} / ${allPages.length}`, {
+      x: page.getSize().width / 2 - 16,
+      y: 20,
+      size: 9,
+      font: pageFont,
+    });
+  });
+  zip.file("dossier_complet.pdf", Buffer.from(await finalPdf.save()));
 
   // --- Upload de l'archive + enregistrement de l'export ---
   const zipBuffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
