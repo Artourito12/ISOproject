@@ -2,6 +2,9 @@
   "functions": {
     "api/**/*.js": { "maxDuration": 800 }
   },
+  "crons": [
+    { "path": "/api/jobs/relances", "schedule": "0 8 * * 1" }
+  ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
